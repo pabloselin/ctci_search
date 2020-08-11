@@ -1,0 +1,34 @@
+<?php
+/**
+ * Plugin Name:       Buscador de documentos para CTCI
+ * Plugin URI:        https://apie.cl
+ * Description:       Buscador de documentos (Frontend) para CTCI basado en React y usando la REST API de WP
+ * Version:           0.0.1
+ * Author:            A Pie
+ * Author URI:        https://apie.cl
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       ctci
+ */
+
+define('CTCISEARCH_VERSION', '0.0.1');
+
+function ctcisearch_enqueue_scripts() {
+	global $post;
+
+	if(is_home()) {
+		wp_enqueue_script( 'ctci_search', plugin_dir_url( __FILE__ ) . '/build/index.js', ['wp-element', 'wp-api-fetch'], time(), true);
+		wp_localize_script( 'ctci_search', 'searchendpoints', ctcisearch_endpoints($postid) );
+	}
+}
+
+add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
+
+function ctcisearch_endpoints() {
+
+	$endpoints = array(
+		'default' => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?_embed&search=',
+	);
+
+	return $endpoints;
+}
