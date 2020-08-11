@@ -1,4 +1,13 @@
 import { render, Component } from "@wordpress/element";
+import styled from "styled-components";
+
+const StyledDocItem = styled.div`
+	img {
+		max-width: 200px;
+		float: left;
+		margin-right: 12px;
+	}
+`;
 
 class DocItem extends Component {
 	constructor(props) {
@@ -19,7 +28,7 @@ class DocItem extends Component {
 
 	render() {
 		return (
-			<div className="docitem">
+			<StyledDocItem>
 				<img
 					src={this.state.imageUrl}
 					alt={this.props.title.rendered}
@@ -31,7 +40,20 @@ class DocItem extends Component {
 					className="content"
 					dangerouslySetInnerHTML={this.state.excerpt}
 				/>
-			</div>
+				{this.state.terms &&
+					this.state.terms.map((tax, index) => (
+						<p key={index}>
+							{tax.map((term) => (
+								<span
+									className={`termitem ` + term.taxonomy}
+									key={term.id}
+								>
+									{term.name}
+								</span>
+							))}
+						</p>
+					))}
+			</StyledDocItem>
 		);
 	}
 }

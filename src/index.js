@@ -1,9 +1,23 @@
 import { render, Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
+import styled from "styled-components";
 
 import Results from "./Results.js";
 
 console.log("init search");
+
+const SearchField = styled.form`
+	margin-bottom: 24px;
+	input[type="text"] {
+		margin-right: 12px;
+	}
+`;
+
+const SearchZone = styled.div`
+	padding: 24px;
+	background-color: #f0f0f0;
+	overflow: hidden;
+`;
 
 class CtciSearch extends Component {
 	constructor(props) {
@@ -42,8 +56,8 @@ class CtciSearch extends Component {
 
 	render() {
 		return (
-			<div id="ctci_search">
-				<form onSubmit={(e) => this.doSearch(e)}>
+			<SearchZone>
+				<SearchField onSubmit={(e) => this.doSearch(e)}>
 					<input
 						type="text"
 						onChange={(e) => this.updateSearch(e)}
@@ -51,10 +65,10 @@ class CtciSearch extends Component {
 						value={this.state.value}
 					/>
 					<input type="submit" value="Buscar" />
-				</form>
+				</SearchField>
 
 				<Results posts={this.state.searchResults} />
-			</div>
+			</SearchZone>
 		);
 	}
 }

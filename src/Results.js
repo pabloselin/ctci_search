@@ -20,7 +20,7 @@ class Results extends Component {
 			if (docs.length > 0) {
 				return docs.map((item) => <DocItem key={item.id} {...item} />);
 			} else {
-				return "";
+				return "Buscar recursos";
 			}
 		};
 
