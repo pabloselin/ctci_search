@@ -27,6 +27,7 @@ class CtciSearch extends Component {
 			searchContent: "",
 			searchEndpoints: window.searchendpoints,
 			searchResults: [],
+			searchMessage: "Buscar recursos",
 		};
 	}
 
@@ -35,7 +36,17 @@ class CtciSearch extends Component {
 		console.log(this.state.searchEndpoints);
 	}
 
-	componentDidUpdate() {}
+	componentDidUpdate(prevProps, prevState) {
+		if (this.state.searchResults !== prevState.searchResults) {
+			if (this.state.searchResults.length > 0) {
+				this.setState({ searchMessage: "" });
+			} else {
+				this.setState({
+					searchMessage: "No se encontraron contenidos",
+				});
+			}
+		}
+	}
 
 	updateSearch(e) {
 		console.log(e.target.value);
@@ -67,7 +78,11 @@ class CtciSearch extends Component {
 					<input type="submit" value="Buscar" />
 				</SearchField>
 
-				<Results posts={this.state.searchResults} />
+				<Results
+					searchQuery={this.state.searchContent}
+					message={this.state.searchMessage}
+					posts={this.state.searchResults}
+				/>
 			</SearchZone>
 		);
 	}

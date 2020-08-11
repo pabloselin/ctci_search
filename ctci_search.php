@@ -32,3 +32,27 @@ function ctcisearch_endpoints() {
 
 	return $endpoints;
 }
+
+add_action('rest_api_init', 'ctcisearch_register_rest_images' );
+
+// From: https://medium.com/@dalenguyen/how-to-get-featured-image-from-wordpress-rest-api-5e023b9896c6
+
+function ctcisearch_register_rest_images(){
+    
+    register_rest_field( array('ctci_doc'),
+        'fimg_url',
+        array(
+            'get_callback'    => 'ctcisearch_get_rest_featured_image',
+            'update_callback' => null,
+            'schema'          => null,
+        )
+    );
+}
+
+function ctcisearch_get_rest_featured_image( $object, $field_name, $request ) {
+    if( $object['featured_media'] ){
+        $img = wp_get_attachment_image_src( $object['featured_media'], 'app-thumb' );
+        return $img[0];
+    }
+    return false;
+}

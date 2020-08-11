@@ -15,14 +15,14 @@ class DocItem extends Component {
 		this.state = {
 			excerpt: { __html: "" },
 			imageUrl: "",
+			terms: [],
 		};
 	}
 
 	componentDidMount() {
 		this.setState({
 			excerpt: { __html: this.props.excerpt.rendered },
-			imageUrl: this.props._embedded["wp:featuredmedia"][0].source_url,
-			terms: this.props._embedded["wp:term"],
+			imageUrl: this.props.fimg_url,
 		});
 	}
 
