@@ -2,6 +2,8 @@ import { render, Component } from "@wordpress/element";
 import styled from "styled-components";
 
 const StyledDocItem = styled.div`
+	overflow: hidden;
+	margin-bottom: 12px;
 	img {
 		max-width: 200px;
 		float: left;
