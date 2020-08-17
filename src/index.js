@@ -28,6 +28,7 @@ class CtciSearch extends Component {
 			searchEndpoints: window.searchendpoints,
 			searchResults: [],
 			searchMessage: "Buscar recursos",
+			isSearching: false,
 		};
 	}
 
@@ -38,6 +39,9 @@ class CtciSearch extends Component {
 
 	componentDidUpdate(prevProps, prevState) {
 		if (this.state.searchResults !== prevState.searchResults) {
+			this.setState({
+				isSearching: false,
+			});
 			if (this.state.searchResults.length > 0) {
 				this.setState({ searchMessage: "" });
 			} else {
@@ -57,6 +61,7 @@ class CtciSearch extends Component {
 
 	doSearch(e) {
 		e.preventDefault();
+		this.setState({ isSearching: true });
 		let searchUrl =
 			this.state.searchEndpoints.default + this.state.searchContent;
 		apiFetch({ url: searchUrl }).then((posts) => {
@@ -79,6 +84,7 @@ class CtciSearch extends Component {
 				</SearchField>
 
 				<Results
+					isSearching={this.state.isSearching}
 					searchQuery={this.state.searchContent}
 					message={this.state.searchMessage}
 					posts={this.state.searchResults}

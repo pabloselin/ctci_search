@@ -1,4 +1,5 @@
 import { render, Component } from "@wordpress/element";
+import Loader from "react-loader-spinner";
 
 import DocItem from "./DocItem.js";
 
@@ -24,7 +25,20 @@ class Results extends Component {
 			}
 		};
 
-		return <div className="results">{docslist(this.props.posts)}</div>;
+		return (
+			<div className="results">
+				{this.props.isSearching === true ? (
+					<Loader
+						type="Grid"
+						color="#000000"
+						height={100}
+						width={100}
+					/>
+				) : (
+					docslist(this.props.posts)
+				)}
+			</div>
+		);
 	}
 }
 
