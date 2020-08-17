@@ -26,8 +26,27 @@ add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
 
 function ctcisearch_endpoints() {
 
+
+    $taxonomies = get_object_taxonomies( 'ctci_doc' );
+
+    $taxendpoints = [];
+
+    foreach($taxonomies as $taxonomy) {
+        $args = array(
+                    'taxonomy' => $taxonomy
+                );
+        $taxendpoints[] = array(
+                                        'labels'    => get_taxonomy_labels( get_taxonomy($taxonomy )),
+                                        'endpoint' => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
+                                        'terms' => get_terms($args)
+                                    );
+    }
+
 	$endpoints = array(
 		'default' => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?_embed&search=',
+        'taxonomies' => get_bloginfo('url') . '/wp-json/wp/v2/taxonomies',
+        'taxonomy_base' => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?',
+        'taxonomies_endpoints' => $taxendpoints
 	);
 
 	return $endpoints;

@@ -3,6 +3,7 @@ import apiFetch from "@wordpress/api-fetch";
 import styled from "styled-components";
 
 import Results from "./Results.js";
+import TaxBrowser from "./TaxBrowser.js";
 
 console.log("init search");
 
@@ -10,6 +11,7 @@ const SearchField = styled.form`
 	margin-bottom: 24px;
 	input[type="text"] {
 		margin-right: 12px;
+		padding: 6px;
 	}
 `;
 
@@ -17,6 +19,7 @@ const SearchZone = styled.div`
 	padding: 24px;
 	background-color: #f0f0f0;
 	overflow: hidden;
+	text-align: center;
 `;
 
 class CtciSearch extends Component {
@@ -26,10 +29,17 @@ class CtciSearch extends Component {
 		this.state = {
 			searchContent: "",
 			searchEndpoints: window.searchendpoints,
+			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
+			taxSearchBase: window.searchendpoints.taxonomy_base,
 			searchResults: [],
 			searchMessage: "Buscar recursos",
 			isSearching: false,
+			isTermSearch: false,
+			termSearch: "",
+			taxSearch: "",
 		};
+
+		this.clickTerm = this.clickTerm.bind(this);
 	}
 
 	componentDidMount() {
@@ -70,6 +80,21 @@ class CtciSearch extends Component {
 		});
 	}
 
+	clickTerm(term) {
+		console.log("clicked", term);
+		this.setState({
+			isTermSearch: true,
+			isSearching: true,
+		});
+		let taxName = term.taxonomy === "post_tag" ? "tags" : term.taxonomy;
+		let searchUrl = this.state.taxSearchBase + taxName + "=" + term.term_id;
+		console.log(searchUrl);
+		apiFetch({ url: searchUrl }).then((posts) => {
+			console.log(posts);
+			this.setState({ searchResults: posts });
+		});
+	}
+
 	render() {
 		return (
 			<SearchZone>
@@ -88,6 +113,10 @@ class CtciSearch extends Component {
 					searchQuery={this.state.searchContent}
 					message={this.state.searchMessage}
 					posts={this.state.searchResults}
+				/>
+				<TaxBrowser
+					onClickTerm={this.clickTerm}
+					taxonomies={this.state.taxEndpoints}
 				/>
 			</SearchZone>
 		);
