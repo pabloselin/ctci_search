@@ -11,15 +11,14 @@
  * Text Domain:       ctci
  */
 
-define('CTCISEARCH_VERSION', '0.0.1');
+define('CTCISEARCH_VERSION', '0.1');
 
 function ctcisearch_enqueue_scripts() {
 	global $post;
 
-	if(is_home()) {
-		wp_enqueue_script( 'ctci_search', plugin_dir_url( __FILE__ ) . '/build/index.js', ['wp-element', 'wp-api-fetch'], time(), true);
-		wp_localize_script( 'ctci_search', 'searchendpoints', ctcisearch_endpoints($postid) );
-	}
+	
+	wp_enqueue_script( 'ctci_search', plugin_dir_url( __FILE__ ) . '/build/index.js', ['wp-element', 'wp-api-fetch'], CTCISEARCH_VERSION, true);
+	wp_localize_script( 'ctci_search', 'searchendpoints', ctcisearch_endpoints($postid) );
 }
 
 add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
