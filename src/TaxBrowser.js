@@ -9,7 +9,9 @@ class TaxBrowser extends Component {
 		};
 	}
 
-	componentDidMount() {}
+	componentDidMount() {
+		console.log(this.props.taxonomies);
+	}
 
 	componentDidUpdate(prevProps) {}
 
@@ -18,7 +20,7 @@ class TaxBrowser extends Component {
 			<div className={taxonomy.name} key={k}>
 				<p>{taxonomy.labels.name}</p>
 				<ul>
-					{taxonomy.terms &&
+					{taxonomy.terms.length > 0 &&
 						taxonomy.terms.map((term, k) => (
 							<li
 								className="term"

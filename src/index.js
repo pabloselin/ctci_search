@@ -7,7 +7,6 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
 
-console.log("init search");
 
 class CtciSearch extends Component {
 	constructor(props) {
@@ -32,7 +31,7 @@ class CtciSearch extends Component {
 
 	componentDidMount() {
 		//load data here
-		console.log(this.state.searchEndpoints);
+		
 	}
 
 	componentDidUpdate(prevProps, prevState) {
