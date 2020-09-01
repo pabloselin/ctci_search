@@ -15,11 +15,11 @@ class TaxBrowser extends Component {
 
 	render() {
 		const taxlist = this.props.taxonomies.map((taxonomy, k) => (
-			<div className={taxonomy} key={k}>
+			<div className={taxonomy.name} key={k}>
 				<p>{taxonomy.labels.name}</p>
 				<ul>
 					{taxonomy.terms.map((term, k) => (
-						<li
+						<li className="term"
 							onClick={() => this.props.onClickTerm(term)}
 							key={k}
 						>
@@ -30,7 +30,7 @@ class TaxBrowser extends Component {
 			</div>
 		));
 
-		return taxlist;
+		return <div className="TaxBrowser">{taxlist}</div>;
 	}
 }
 

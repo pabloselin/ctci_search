@@ -1,26 +1,13 @@
 import { render, Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-import styled from "styled-components";
+import { Row, Col, Container } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
 
 console.log("init search");
-
-const SearchField = styled.form`
-	margin-bottom: 24px;
-	input[type="text"] {
-		margin-right: 12px;
-		padding: 6px;
-	}
-`;
-
-const SearchZone = styled.div`
-	padding: 24px;
-	background-color: #f0f0f0;
-	overflow: hidden;
-	text-align: center;
-`;
 
 class CtciSearch extends Component {
 	constructor(props) {
@@ -31,8 +18,9 @@ class CtciSearch extends Component {
 			searchEndpoints: window.searchendpoints,
 			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
 			taxSearchBase: window.searchendpoints.taxonomy_base,
+			sitename: window.searchendpoints.sitename,
 			searchResults: [],
-			searchMessage: "Buscar recursos",
+			searchMessage: "",
 			isSearching: false,
 			isTermSearch: false,
 			termSearch: "",
@@ -97,28 +85,53 @@ class CtciSearch extends Component {
 
 	render() {
 		return (
-			<SearchZone>
-				<SearchField onSubmit={(e) => this.doSearch(e)}>
-					<input
-						type="text"
-						onChange={(e) => this.updateSearch(e)}
-						onSubmit={(e) => this.doSearch(e)}
-						value={this.state.value}
-					/>
-					<input type="submit" value="Buscar" />
-				</SearchField>
+			<>
+				<Container>
+					<div className="SearchZone">
+						<form
+							className="SearchField form"
+							onSubmit={(e) => this.doSearch(e)}
+						>
+							<Row>
+								<Col md="6" className="searchInfo">
+									{this.state.sitename}
+								</Col>
+								<Col className="searchZone">
+									<input
+										type="text"
+										className="form-control"
+										onChange={(e) => this.updateSearch(e)}
+										onSubmit={(e) => this.doSearch(e)}
+										value={this.state.value}
+										placeholder="Buscar ..."
+									/>
+									<button
+										type="submit"
+										value="Buscar"
+										className="searchButton btn btn-large"
+									>
+										Buscar{" "}
+										<FontAwesomeIcon icon={faSearch} />
+									</button>
+								</Col>
+							</Row>
+						</form>
+					</div>
 
-				<Results
-					isSearching={this.state.isSearching}
-					searchQuery={this.state.searchContent}
-					message={this.state.searchMessage}
-					posts={this.state.searchResults}
-				/>
-				<TaxBrowser
-					onClickTerm={this.clickTerm}
-					taxonomies={this.state.taxEndpoints}
-				/>
-			</SearchZone>
+					<Results
+						isSearching={this.state.isSearching}
+						searchQuery={this.state.searchContent}
+						message={this.state.searchMessage}
+						posts={this.state.searchResults}
+					/>
+				</Container>
+				{this.state.searchResults.length === 0 && (
+					<TaxBrowser
+						onClickTerm={this.clickTerm}
+						taxonomies={this.state.taxEndpoints}
+					/>
+				)}
+			</>
 		);
 	}
 }

@@ -1,16 +1,6 @@
 import { render, Component } from "@wordpress/element";
-import styled from "styled-components";
 
-const StyledDocItem = styled.div`
-	overflow: hidden;
-	margin-bottom: 12px;
-	text-align: left;
-	img {
-		max-width: 200px;
-		float: left;
-		margin-right: 12px;
-	}
-`;
+import DocMeta from "./partials/DocMeta.js";
 
 class DocItem extends Component {
 	constructor(props) {
@@ -18,7 +8,12 @@ class DocItem extends Component {
 		this.state = {
 			excerpt: { __html: "" },
 			imageUrl: "",
-			terms: [],
+			docarea: null,
+			docauthor: null,
+			docpilar: null,
+			doctema: null,
+			doctype: null,
+			tags: null,
 		};
 	}
 
@@ -26,37 +21,51 @@ class DocItem extends Component {
 		this.setState({
 			excerpt: { __html: this.props.excerpt.rendered },
 			imageUrl: this.props.fimg_url,
+			terms: {
+				docarea: this.props.termlist.docarea,
+				docauthor: this.props.termlist.docauthor,
+				docpilar: this.props.termlist.docpilar,
+				doctema: this.props.termlist.doctema,
+				doctype: this.props.termlist.doctype,
+				tags: this.props.termlist.post_tag,
+			},
 		});
 	}
 
 	render() {
+		const taxonomies = [
+			{ docarea: "Área" },
+			{ docauthor: "Autor" },
+			{ docpilar: "Pilar Estratégico" },
+			{ doctema: "Tema" },
+			{ doctype: "Tipo" },
+			{ tags: "Etiquetas" },
+		];
+
 		return (
-			<StyledDocItem>
-				<img
-					src={this.state.imageUrl}
-					alt={this.props.title.rendered}
-				/>
-				<h1>
-					<a href={this.props.link}>{this.props.title.rendered}</a>
-				</h1>
-				<div
-					className="content"
-					dangerouslySetInnerHTML={this.state.excerpt}
-				/>
-				{this.state.terms &&
-					this.state.terms.map((tax, index) => (
-						<p key={index}>
-							{tax.map((term) => (
-								<span
-									className={`termitem ` + term.taxonomy}
-									key={term.id}
-								>
-									{term.name}
-								</span>
-							))}
-						</p>
-					))}
-			</StyledDocItem>
+			<article className="DocItem">
+				{this.state.imageUrl ? (
+					<img
+						src={this.state.imageUrl}
+						alt={this.props.title.rendered}
+					/>
+				) : (
+					<div className="placeholder"></div>
+				)}
+
+				<div className="docText">
+					<h1>
+						<a href={this.props.link}>
+							{this.props.title.rendered}
+						</a>
+					</h1>
+					<DocMeta meta={this.props.meta} />
+					<div
+						className="content"
+						dangerouslySetInnerHTML={this.state.excerpt}
+					/>
+				</div>
+			</article>
 		);
 	}
 }

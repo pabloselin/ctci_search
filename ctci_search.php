@@ -36,17 +36,20 @@ function ctcisearch_endpoints() {
                     'taxonomy' => $taxonomy
                 );
         $taxendpoints[] = array(
-                                        'labels'    => get_taxonomy_labels( get_taxonomy($taxonomy )),
-                                        'endpoint' => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
-                                        'terms' => get_terms($args)
+                                        'labels'        => get_taxonomy_labels( get_taxonomy($taxonomy )),
+                                        'endpoint'      => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
+                                        'terms'         => get_terms($args),
+                                        'name'          => $taxonomy 
                                     );
     }
 
 	$endpoints = array(
-		'default' => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?_embed&search=',
-        'taxonomies' => get_bloginfo('url') . '/wp-json/wp/v2/taxonomies',
-        'taxonomy_base' => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?',
-        'taxonomies_endpoints' => $taxendpoints
+		'default'                   => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?_embed&search=',
+        'taxonomies'                => get_bloginfo('url') . '/wp-json/wp/v2/taxonomies',
+        'taxonomy_base'             => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?',
+        'taxonomies_endpoints'      => $taxendpoints,
+        'sitename'                  => get_bloginfo('name'),
+        'siteurl'                   => get_bloginfo('url')
 	);
 
 	return $endpoints;
@@ -66,6 +69,15 @@ function ctcisearch_register_rest_images(){
             'schema'          => null,
         )
     );
+
+    register_rest_field( array('ctci_doc'),
+        'termlist',
+        array(
+            'get_callback'    => 'ctcisearch_get_rest_termslist',
+            'update_callback' => null,
+            'schema'          => null,
+        )
+    );
 }
 
 function ctcisearch_get_rest_featured_image( $object, $field_name, $request ) {
@@ -74,4 +86,14 @@ function ctcisearch_get_rest_featured_image( $object, $field_name, $request ) {
         return $img[0];
     }
     return false;
+}
+
+function ctcisearch_get_rest_termslist( $object, $field_name, $request ) {
+    $taxonomies = get_object_taxonomies( 'ctci_doc' );
+    $taxlist = [];
+    foreach($taxonomies as $taxonomy) {
+        $taxlist[$taxonomy] = get_the_terms( $object['id'], $taxonomy );
+    }
+
+    return $taxlist;
 }
