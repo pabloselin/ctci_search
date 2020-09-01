@@ -18,14 +18,16 @@ class TaxBrowser extends Component {
 			<div className={taxonomy.name} key={k}>
 				<p>{taxonomy.labels.name}</p>
 				<ul>
-					{taxonomy.terms.map((term, k) => (
-						<li className="term"
-							onClick={() => this.props.onClickTerm(term)}
-							key={k}
-						>
-							{term.name}
-						</li>
-					))}
+					{taxonomy.terms &&
+						taxonomy.terms.map((term, k) => (
+							<li
+								className="term"
+								onClick={() => this.props.onClickTerm(term)}
+								key={k}
+							>
+								{term.name}
+							</li>
+						))}
 				</ul>
 			</div>
 		));
