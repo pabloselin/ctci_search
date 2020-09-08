@@ -7,11 +7,9 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
 
-
 class CtciSearch extends Component {
 	constructor(props) {
 		super(props);
-
 		this.state = {
 			searchContent: "",
 			searchEndpoints: window.searchendpoints,
@@ -31,7 +29,6 @@ class CtciSearch extends Component {
 
 	componentDidMount() {
 		//load data here
-		
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -75,17 +72,20 @@ class CtciSearch extends Component {
 		});
 		let taxName = term.taxonomy === "post_tag" ? "tags" : term.taxonomy;
 		let searchUrl = this.state.taxSearchBase + taxName + "=" + term.term_id;
-		console.log(searchUrl);
+		console.log("taxinfo", this.state.taxEndpoints);
 		apiFetch({ url: searchUrl }).then((posts) => {
 			console.log(posts);
-			this.setState({ searchResults: posts });
+			this.setState({
+				searchResults: posts,
+				searchContent: taxName + " " + term.name,
+			});
 		});
 	}
 
 	render() {
 		return (
 			<>
-				<Container>
+				<Container className={this.props.layout}>
 					<div className="SearchZone">
 						<form
 							className="SearchField form"
@@ -124,15 +124,19 @@ class CtciSearch extends Component {
 						posts={this.state.searchResults}
 					/>
 				</Container>
-				{this.state.searchResults.length === 0 && (
-					<TaxBrowser
-						onClickTerm={this.clickTerm}
-						taxonomies={this.state.taxEndpoints}
-					/>
-				)}
+				{this.state.searchResults.length === 0 &&
+					this.props.layout !== "mini" && (
+						<TaxBrowser
+							onClickTerm={this.clickTerm}
+							taxonomies={this.state.taxEndpoints}
+						/>
+					)}
 			</>
 		);
 	}
 }
 
-render(<CtciSearch />, document.getElementById("ctci_search"));
+const searchBox = document.getElementById("ctci_search");
+const layout = searchBox.getAttribute("data-layout");
+
+render(<CtciSearch layout={layout} />, searchBox);

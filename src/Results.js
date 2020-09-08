@@ -35,7 +35,12 @@ class Results extends Component {
 						width={100}
 					/>
 				) : (
-					docslist(this.props.posts)
+					<>
+						{this.props.searchQuery && (
+							<h1>{this.props.searchQuery}</h1>
+						)}
+						{docslist(this.props.posts)}
+					</>
 				)}
 			</div>
 		);
