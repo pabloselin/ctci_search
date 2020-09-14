@@ -124,8 +124,11 @@ function ctcisearch_custom( WP_REST_Request $request) {
     } else if($request['startyear'] && $request['endyear']) {
         $items = ctcisearch_yearquery( $request['startyear'], $request['endyear']);    
     } else if($request['startyear'] && $request['s']) {
-        $items = ctcisearch_multiquery($request['s'], $reqyest['startyear'], false);
-    } else {
+        $items = ctcisearch_multiquery($request['s'], $request['startyear'], false);
+    } else if($request['startyear']) {
+        $items = ctcisearch_yearquery( $request['startyear'], false);
+    }
+     else {
         $items = ctcisearch_searchquery($request['s']);
     }
 
@@ -164,7 +167,7 @@ function ctcisearch_multiquery($search, $start_year, $end_year) {
         'order'      => 'ASC'
     );
 
-    if($end_year) {
+    if($end_year != false) {
         $args['meta_query'] = array(
             array(
                 'key'       => '_ctci_doc_year',
@@ -199,7 +202,7 @@ function ctcisearch_yearquery($start_year, $end_year) {
         'numberposts'   => -1
     );
 
-    if($end_year) {
+    if($end_year != false) {
         $args['meta_query'] = array(
                 array(
                     'key'       => '_ctci_doc_year',

@@ -23,6 +23,7 @@ class CtciSearch extends Component {
 			searchMessage: "",
 			isSearching: false,
 			isTermSearch: false,
+			allowYearEnd: false,
 			termSearch: "",
 			taxSearch: "",
 			startYear: "",
@@ -106,7 +107,7 @@ class CtciSearch extends Component {
 				this.state.searchEndpoints.custom +
 				"?s=" +
 				this.state.searchContent +
-				"startyear=" +
+				"&startyear=" +
 				this.state.startYear;
 		} else if (this.state.startYear) {
 			baseUrl =
@@ -216,25 +217,51 @@ class CtciSearch extends Component {
 												{yearOptions}
 											</select>
 										</div>
-										{this.state.startYear && (
-											<div className="col">
-												<select
-													value={this.state.endYear}
-													className="custom-select"
-													name="yearEnd"
-													id="yearEnd"
-													onChange={(e) =>
-														this.updateYearEnd(e)
-													}
-												>
-													<option value={""}>
-														{"hasta Año"}
-													</option>
-													{endYearOptions}
-												</select>
-											</div>
-										)}
+										{this.state.startYear &&
+											this.state.allowYearEnd && (
+												<div className="col">
+													<select
+														value={
+															this.state.endYear
+														}
+														className="custom-select"
+														name="yearEnd"
+														id="yearEnd"
+														onChange={(e) =>
+															this.updateYearEnd(
+																e
+															)
+														}
+													>
+														<option value={""}>
+															{"hasta Año"}
+														</option>
+														{endYearOptions}
+													</select>
+												</div>
+											)}
 									</div>
+									{this.state.startYear && (
+										<div className="form-row">
+											<div className="col">
+												Escoger hasta{" "}
+												<input
+													type="checkbox"
+													value={
+														this.state.allowYearEnd
+													}
+													onChange={() =>
+														this.setState({
+															allowYearEnd: !this
+																.state
+																.allowYearEnd,
+															yearEnd: "",
+														})
+													}
+												/>
+											</div>
+										</div>
+									)}
 									<button
 										type="submit"
 										value="Buscar"
