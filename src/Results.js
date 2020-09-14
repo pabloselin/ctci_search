@@ -11,9 +11,6 @@ class Results extends Component {
 	componentDidMount() {}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.posts !== prevProps.posts) {
-			console.log(this.props.posts);
-		}
 	}
 
 	render() {

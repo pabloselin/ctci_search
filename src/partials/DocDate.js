@@ -15,23 +15,23 @@ const monthEquiv = {
 	"12": "Diciembre",
 };
 
-const DocMeta = (props) => {
+const DocDate = (props) => {
 	return (
 		<div className="DocMeta">
-			{props.meta._ctci_doc_day ? (
+			{props.date.day ? (
 				<span className="date">
-					{props.meta._ctci_doc_day}{" "}
-					{monthEquiv[props.meta._ctci_doc_month]}{" "}
-					{props.meta._ctci_doc_year}
+					{props.date.day}{" "}
+					{monthEquiv[props.date.month]}{" "}
+					{props.date.year}
 				</span>
 			) : (
 				<span className="date">
-					{monthEquiv[props.meta._ctci_doc_month]}{" "}
-					{props.meta._ctci_doc_year}
+					{monthEquiv[props.date.month]}{" "}
+					{props.date.year}
 				</span>
 			)}
 		</div>
 	);
 };
 
-export default DocMeta;
+export default DocDate;

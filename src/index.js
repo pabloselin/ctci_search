@@ -13,15 +13,20 @@ class CtciSearch extends Component {
 		this.state = {
 			searchContent: "",
 			searchEndpoints: window.searchendpoints,
+			customSearch: window.searchendpoints.custom,
 			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
 			taxSearchBase: window.searchendpoints.taxonomy_base,
 			sitename: window.searchendpoints.sitename,
+			years: Object.values(window.searchendpoints.years),
+			restYears: [],
 			searchResults: [],
 			searchMessage: "",
 			isSearching: false,
 			isTermSearch: false,
 			termSearch: "",
 			taxSearch: "",
+			startYear: "",
+			endYear: "",
 		};
 
 		this.clickTerm = this.clickTerm.bind(this);
@@ -44,6 +49,14 @@ class CtciSearch extends Component {
 				});
 			}
 		}
+
+		if (this.state.startYear !== prevState.startYear) {
+			let cutYear = this.state.years.indexOf(
+				parseInt(this.state.startYear)
+			);
+			console.log(cutYear);
+			this.setState({ restYears: this.state.years.slice(cutYear) });
+		}
 	}
 
 	updateSearch(e) {
@@ -55,12 +68,60 @@ class CtciSearch extends Component {
 
 	doSearch(e) {
 		e.preventDefault();
+		this.buildSearch();
 		this.setState({ isSearching: true });
-		let searchUrl =
-			this.state.searchEndpoints.default + this.state.searchContent;
-		apiFetch({ url: searchUrl }).then((posts) => {
-			console.log(posts);
-			this.setState({ searchResults: posts });
+	}
+
+	buildSearch() {
+		let baseUrl;
+		let searchUrl;
+		let searchString = encodeURI(this.state.searchContent);
+		console.log(searchString);
+
+		if (
+			this.state.startYear &&
+			this.state.endYear &&
+			this.state.searchContent.length > 0
+		) {
+			baseUrl =
+				this.state.searchEndpoints.custom +
+				"?s=" +
+				this.state.searchContent +
+				"&startyear=" +
+				this.state.startYear +
+				"&endyear=" +
+				this.state.endYear;
+		} else if (this.state.startYear && this.state.endYear) {
+			baseUrl =
+				this.state.searchEndpoints.custom +
+				"?startyear=" +
+				this.state.startYear +
+				"&endyear=" +
+				this.state.endYear;
+		} else if (
+			this.state.searchContent.length > 0 &&
+			this.state.startYear
+		) {
+			baseUrl =
+				this.state.searchEndpoints.custom +
+				"?s=" +
+				this.state.searchContent +
+				"startyear=" +
+				this.state.startYear;
+		} else if (this.state.startYear) {
+			baseUrl =
+				this.state.searchEndpoints.custom +
+				"?startyear=" +
+				this.state.startYear;
+		} else {
+			baseUrl = this.state.searchEndpoints.custom + "?s=" + searchString;
+		}
+
+		console.log(baseUrl);
+
+		apiFetch({ url: baseUrl }).then((items) => {
+			console.log(items);
+			this.setState({ searchResults: items });
 		});
 	}
 
@@ -82,7 +143,33 @@ class CtciSearch extends Component {
 		});
 	}
 
+	updateYearEnd(e) {
+		console.log(e.target.value);
+		this.setState({
+			endYear: e.target.value,
+		});
+	}
+
+	updateYearStart(e) {
+		console.log(e.target.value);
+		this.setState({
+			startYear: e.target.value,
+			endYear: "",
+		});
+	}
+
 	render() {
+		const yearOptions = this.state.years.map((year, idx) => (
+			<option key={idx} value={year}>
+				{year}
+			</option>
+		));
+		const endYearOptions = this.state.restYears.map((year, idx) => (
+			<option key={idx} value={year}>
+				{year}
+			</option>
+		));
+
 		return (
 			<>
 				<Container className={this.props.layout}>
@@ -96,14 +183,58 @@ class CtciSearch extends Component {
 									{this.state.sitename}
 								</Col>
 								<Col className="searchZone">
-									<input
-										type="text"
-										className="form-control"
-										onChange={(e) => this.updateSearch(e)}
-										onSubmit={(e) => this.doSearch(e)}
-										value={this.state.value}
-										placeholder="Buscar ..."
-									/>
+									<div className="form-row">
+										<div className="col">
+											<input
+												type="text"
+												className="form-control"
+												onChange={(e) =>
+													this.updateSearch(e)
+												}
+												onSubmit={(e) =>
+													this.doSearch(e)
+												}
+												value={this.state.value}
+												placeholder="Buscar ..."
+											/>
+										</div>
+									</div>
+									<div className="form-row">
+										<div className="col">
+											<select
+												value={this.state.startYear}
+												className="custom-select"
+												name="yearStart"
+												id="yearStart"
+												onChange={(e) =>
+													this.updateYearStart(e)
+												}
+											>
+												<option value={""}>
+													{"desde Año"}
+												</option>
+												{yearOptions}
+											</select>
+										</div>
+										{this.state.startYear && (
+											<div className="col">
+												<select
+													value={this.state.endYear}
+													className="custom-select"
+													name="yearEnd"
+													id="yearEnd"
+													onChange={(e) =>
+														this.updateYearEnd(e)
+													}
+												>
+													<option value={""}>
+														{"hasta Año"}
+													</option>
+													{endYearOptions}
+												</select>
+											</div>
+										)}
+									</div>
 									<button
 										type="submit"
 										value="Buscar"

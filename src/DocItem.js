@@ -1,36 +1,13 @@
 import { render, Component } from "@wordpress/element";
 
-import DocMeta from "./partials/DocMeta.js";
+import DocDate from "./partials/DocDate.js";
 
 class DocItem extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			excerpt: { __html: "" },
-			imageUrl: "",
-			docarea: null,
-			docauthor: null,
-			docpilar: null,
-			doctema: null,
-			doctype: null,
-			tags: null,
-		};
 	}
 
-	componentDidMount() {
-		this.setState({
-			excerpt: { __html: this.props.excerpt.rendered },
-			imageUrl: this.props.fimg_url,
-			terms: {
-				docarea: this.props.termlist.docarea,
-				docauthor: this.props.termlist.docauthor,
-				docpilar: this.props.termlist.docpilar,
-				doctema: this.props.termlist.doctema,
-				doctype: this.props.termlist.doctype,
-				tags: this.props.termlist.post_tag,
-			},
-		});
-	}
+	componentDidMount() {}
 
 	render() {
 		const taxonomies = [
@@ -44,25 +21,20 @@ class DocItem extends Component {
 
 		return (
 			<article className="DocItem">
-				{this.state.imageUrl ? (
-					<img
-						src={this.state.imageUrl}
-						alt={this.props.title.rendered}
-					/>
+				{this.props.image ? (
+					<img src={this.props.image} alt={this.props.title} />
 				) : (
 					<div className="placeholder"></div>
 				)}
 
 				<div className="docText">
 					<h1>
-						<a href={this.props.link}>
-							{this.props.title.rendered}
-						</a>
+						<a href={this.props.link}>{this.props.title}</a>
 					</h1>
-					<DocMeta meta={this.props.meta} />
+					<DocDate date={this.props.date} />
 					<div
 						className="content"
-						dangerouslySetInnerHTML={this.state.excerpt}
+						dangerouslySetInnerHTML={{ __html: this.props.excerpt }}
 					/>
 				</div>
 			</article>
