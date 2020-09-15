@@ -15,7 +15,7 @@ class CtciSearch extends Component {
 			searchEndpoints: window.searchendpoints,
 			customSearch: window.searchendpoints.custom,
 			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
-			taxSearchBase: window.searchendpoints.taxonomy_base,
+			taxSearchBase: window.searchendpoints.taxonomy_custom,
 			sitename: window.searchendpoints.sitename,
 			years: Object.values(window.searchendpoints.years),
 			restYears: [],
@@ -28,6 +28,7 @@ class CtciSearch extends Component {
 			taxSearch: "",
 			startYear: "",
 			endYear: "",
+			resultsTitle: "",
 		};
 
 		this.clickTerm = this.clickTerm.bind(this);
@@ -69,8 +70,15 @@ class CtciSearch extends Component {
 
 	doSearch(e) {
 		e.preventDefault();
-		this.buildSearch();
-		this.setState({ isSearching: true });
+
+		if (
+			this.state.searchContent.length > 2 ||
+			(this.state.searchContent.length == 0 &&
+				this.state.startYear.length > 0)
+		) {
+			this.buildSearch();
+			this.setState({ isSearching: true });
+		}
 	}
 
 	buildSearch() {
@@ -122,7 +130,28 @@ class CtciSearch extends Component {
 
 		apiFetch({ url: baseUrl }).then((items) => {
 			console.log(items);
-			this.setState({ searchResults: items });
+
+			let title =
+				(items.length > 0 ? items.length : 0) +
+				" resultado(s) " +
+				(this.state.searchContent.length > 0
+					? " para " + this.state.searchContent
+					: "");
+			let yearstart =
+				this.state.startYear.length > 0
+					? " [desde " + this.state.startYear
+					: "";
+			let yearend =
+				this.state.endYear.length > 0
+					? " hasta " + this.state.endYear + "]"
+					: this.state.startYear.length > 0
+					? "]"
+					: "";
+
+			this.setState({
+				searchResults: items,
+				resultsTitle: title + yearstart + yearend,
+			});
 		});
 	}
 
@@ -133,8 +162,13 @@ class CtciSearch extends Component {
 			isSearching: true,
 		});
 		let taxName = term.taxonomy === "post_tag" ? "tags" : term.taxonomy;
-		let searchUrl = this.state.taxSearchBase + taxName + "=" + term.term_id;
-		console.log("taxinfo", this.state.taxEndpoints);
+		let searchUrl =
+			this.state.taxSearchBase +
+			"?taxonomy=" +
+			taxName +
+			"&term=" +
+			term.term_id;
+		console.log(searchUrl);
 		apiFetch({ url: searchUrl }).then((posts) => {
 			console.log(posts);
 			this.setState({
@@ -255,7 +289,7 @@ class CtciSearch extends Component {
 															allowYearEnd: !this
 																.state
 																.allowYearEnd,
-															yearEnd: "",
+															endYear: "",
 														})
 													}
 												/>
@@ -278,6 +312,7 @@ class CtciSearch extends Component {
 					<Results
 						isSearching={this.state.isSearching}
 						searchQuery={this.state.searchContent}
+						title={this.state.resultsTitle}
 						message={this.state.searchMessage}
 						posts={this.state.searchResults}
 					/>

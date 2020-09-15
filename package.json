@@ -27,6 +27,8 @@
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.11",
     "@wordpress/api-fetch": "^3.18.0",
-    "@wordpress/element": "^2.16.0"
+    "@wordpress/element": "^2.16.0",
+    "latinize": "^0.4.1",
+    "react-highlight-words": "^0.16.0"
   }
 }

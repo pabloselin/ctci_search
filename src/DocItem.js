@@ -1,6 +1,9 @@
 import { render, Component } from "@wordpress/element";
+import Highlighter from "react-highlight-words";
+import latinize from "latinize";
 
 import DocDate from "./partials/DocDate.js";
+
 
 class DocItem extends Component {
 	constructor(props) {
@@ -22,20 +25,22 @@ class DocItem extends Component {
 		return (
 			<article className="DocItem">
 				{this.props.image ? (
-					<img src={this.props.image} alt={this.props.title} />
+					<a href={this.props.link}>
+						<img src={this.props.image} alt={this.props.title} />
+					</a>
 				) : (
 					<div className="placeholder"></div>
 				)}
 
 				<div className="docText">
 					<h1>
-						<a href={this.props.link}>{this.props.title}</a>
+						<a href={this.props.link}>
+						<Highlighter sanitize={latinize} searchWords={[this.props.searchQuery]} textToHighlight={this.props.title} />
+						</a>
+
 					</h1>
 					<DocDate date={this.props.date} />
-					<div
-						className="content"
-						dangerouslySetInnerHTML={{ __html: this.props.excerpt }}
-					/>
+					<Highlighter sanitize={latinize} className="content" searchWords={[this.props.searchQuery]} textToHighlight={this.props.excerpt} />
 				</div>
 			</article>
 		);

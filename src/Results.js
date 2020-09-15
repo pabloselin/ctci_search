@@ -10,13 +10,12 @@ class Results extends Component {
 
 	componentDidMount() {}
 
-	componentDidUpdate(prevProps) {
-	}
+	componentDidUpdate(prevProps) {}
 
 	render() {
 		const docslist = (docs) => {
 			if (docs.length > 0) {
-				return docs.map((item) => <DocItem key={item.id} {...item} />);
+				return docs.map((item) => <DocItem searchQuery={this.props.searchQuery} key={item.id} {...item} />);
 			} else {
 				return <p className="searchMessage">{this.props.message}</p>;
 			}
@@ -33,9 +32,8 @@ class Results extends Component {
 					/>
 				) : (
 					<>
-						{this.props.searchQuery && (
-							<h1>{this.props.searchQuery}</h1>
-						)}
+						<h3>{this.props.title}</h3>
+
 						{docslist(this.props.posts)}
 					</>
 				)}
