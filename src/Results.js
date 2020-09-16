@@ -27,8 +27,13 @@ class Results extends Component {
 			}
 		};
 
+		const typebox =
+			this.props.isSearching === true || this.props.posts.length > 0
+				? "results withcontent"
+				: "results empty";
+
 		return (
-			<div className="results">
+			<div className={typebox}>
 				{this.props.isSearching === true ? (
 					<div className="loadingZone">
 						<Loader
