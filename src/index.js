@@ -30,6 +30,7 @@ class CtciSearch extends Component {
 			startYear: "",
 			endYear: "",
 			resultsTitle: "",
+			layout: "mini",
 		};
 
 		//this.clickTerm = this.clickTerm.bind(this);
@@ -37,6 +38,9 @@ class CtciSearch extends Component {
 
 	componentDidMount() {
 		//load data here
+		this.setState({
+			layout: this.props.layout,
+		});
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -78,7 +82,7 @@ class CtciSearch extends Component {
 				this.state.startYear.length > 0)
 		) {
 			this.buildSearch();
-			this.setState({ isSearching: true });
+			this.setState({ isSearching: true, layout: "mini" });
 		}
 	}
 
@@ -185,20 +189,19 @@ class CtciSearch extends Component {
 					searchResults: posts,
 					resultsTitle:
 						this.state.taxLabels[taxName].name + ": " + termname,
+					layout: "mini"
 				});
 			});
 		}
 	}
 
 	updateYearEnd(e) {
-		console.log(e.target.value);
 		this.setState({
 			endYear: e.target.value,
 		});
 	}
 
 	updateYearStart(e) {
-		console.log(e.target.value);
 		this.setState({
 			startYear: e.target.value,
 			endYear: "",
@@ -219,16 +222,29 @@ class CtciSearch extends Component {
 
 		return (
 			<>
-				<Container className={this.props.layout}>
+				<Container className={this.state.layout}>
 					<div className="SearchZone">
 						<form
 							className="SearchField form"
 							onSubmit={(e) => this.doSearch(e)}
 						>
+							{this.state.layout === "expanded" && (
+								<Row>
+									<Col>
+										<h1 className="searchMainTitle">
+											{this.state.sitename}
+										</h1>
+									</Col>
+								</Row>
+							)}
+
 							<Row>
-								<Col md="6" className="searchInfo">
-									{this.state.sitename}
-								</Col>
+								{this.state.layout === "mini" && (
+									<Col md="2" className="searchInfo">
+										{this.state.sitename}
+									</Col>
+								)}
+
 								<Col className="searchZone">
 									<div className="form-row">
 										<div className="col">
@@ -322,6 +338,7 @@ class CtciSearch extends Component {
 					</div>
 
 					<TaxBrowser
+						layout={this.state.layout}
 						onChangeTerm={(e) => this.changeTerm(e)}
 						taxonomies={this.state.taxEndpoints}
 						searchContent={this.state.searchContent}
