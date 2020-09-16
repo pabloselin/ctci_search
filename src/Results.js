@@ -15,7 +15,13 @@ class Results extends Component {
 	render() {
 		const docslist = (docs) => {
 			if (docs.length > 0) {
-				return docs.map((item) => <DocItem searchQuery={this.props.searchQuery} key={item.id} {...item} />);
+				return docs.map((item) => (
+					<DocItem
+						searchQuery={this.props.searchQuery}
+						key={item.id}
+						{...item}
+					/>
+				));
 			} else {
 				return <p className="searchMessage">{this.props.message}</p>;
 			}
@@ -24,15 +30,17 @@ class Results extends Component {
 		return (
 			<div className="results">
 				{this.props.isSearching === true ? (
-					<Loader
-						type="Grid"
-						color="#000000"
-						height={100}
-						width={100}
-					/>
+					<div className="loadingZone">
+						<Loader
+							type="Grid"
+							color="#000000"
+							height={100}
+							width={100}
+						/>
+					</div>
 				) : (
 					<>
-						<h3>{this.props.title}</h3>
+						<h3 className="resultsTitle">{this.props.title}</h3>
 
 						{docslist(this.props.posts)}
 					</>

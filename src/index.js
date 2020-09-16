@@ -16,6 +16,7 @@ class CtciSearch extends Component {
 			customSearch: window.searchendpoints.custom,
 			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
 			taxSearchBase: window.searchendpoints.taxonomy_custom,
+			taxLabels: window.searchendpoints.taxonomy_labels,
 			sitename: window.searchendpoints.sitename,
 			years: Object.values(window.searchendpoints.years),
 			restYears: [],
@@ -31,7 +32,7 @@ class CtciSearch extends Component {
 			resultsTitle: "",
 		};
 
-		this.clickTerm = this.clickTerm.bind(this);
+		//this.clickTerm = this.clickTerm.bind(this);
 	}
 
 	componentDidMount() {
@@ -151,31 +152,42 @@ class CtciSearch extends Component {
 			this.setState({
 				searchResults: items,
 				resultsTitle: title + yearstart + yearend,
+				isSearching: false,
 			});
 		});
 	}
 
-	clickTerm(term) {
-		console.log("clicked", term);
-		this.setState({
-			isTermSearch: true,
-			isSearching: true,
-		});
-		let taxName = term.taxonomy === "post_tag" ? "tags" : term.taxonomy;
-		let searchUrl =
-			this.state.taxSearchBase +
-			"?taxonomy=" +
-			taxName +
-			"&term=" +
-			term.term_id;
-		console.log(searchUrl);
-		apiFetch({ url: searchUrl }).then((posts) => {
-			console.log(posts);
+	changeTerm(taxterm) {
+		//console.log(taxterm[0]);
+		const info = taxterm.split(",");
+		console.log(info.length);
+
+		if (info.length === 3) {
 			this.setState({
-				searchResults: posts,
-				searchContent: taxName + " " + term.name,
+				isTermSearch: true,
+				isSearching: true,
 			});
-		});
+			let taxonomy = info[1];
+			let term = info[0];
+			let termname = info[2];
+
+			let taxName = taxonomy === "post_tag" ? "tags" : taxonomy;
+			console.log(taxName);
+			let searchUrl =
+				this.state.taxSearchBase +
+				"?taxonomy=" +
+				taxName +
+				"&term=" +
+				term;
+
+			apiFetch({ url: searchUrl }).then((posts) => {
+				this.setState({
+					searchResults: posts,
+					resultsTitle:
+						this.state.taxLabels[taxName].name + ": " + termname,
+				});
+			});
+		}
 	}
 
 	updateYearEnd(e) {
@@ -309,6 +321,12 @@ class CtciSearch extends Component {
 						</form>
 					</div>
 
+					<TaxBrowser
+						onChangeTerm={(e) => this.changeTerm(e)}
+						taxonomies={this.state.taxEndpoints}
+						searchContent={this.state.searchContent}
+					/>
+
 					<Results
 						isSearching={this.state.isSearching}
 						searchQuery={this.state.searchContent}
@@ -317,13 +335,6 @@ class CtciSearch extends Component {
 						posts={this.state.searchResults}
 					/>
 				</Container>
-				{this.state.searchResults.length === 0 &&
-					this.props.layout !== "mini" && (
-						<TaxBrowser
-							onClickTerm={this.clickTerm}
-							taxonomies={this.state.taxEndpoints}
-						/>
-					)}
 			</>
 		);
 	}

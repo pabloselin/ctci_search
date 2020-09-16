@@ -15,13 +15,15 @@ class TaxBrowser extends Component {
 		this.props.taxonomies.map((taxonomy) => {
 			if (taxonomy.terms.length === undefined) {
 				tmptax.push({
-					taxinfo: taxonomy.labels,
+					labels: taxonomy.labels,
 					terms: Object.values(taxonomy.terms),
+					slug: taxonomy.name,
 				});
 			} else {
 				tmptax.push({
-					taxinfo: taxonomy.labels,
+					labels: taxonomy.labels,
 					terms: taxonomy.terms,
+					slug: taxonomy.name,
 				});
 			}
 		});
@@ -29,45 +31,54 @@ class TaxBrowser extends Component {
 		this.setState({ taxonomies: tmptax });
 	}
 
-	componentDidUpdate(prevProps) {}
+	handleChange(e) {
+		let info = e.target.value.split(",");
+		
+		if (info.length > 2) {
+			console.log("handlechange in taxbrowser");
+			this.setState({ curtax: info[1] });
+			this.props.onChangeTerm(e.target.value);
+		}
+	}
+
+	componentDidUpdate(prevProps, prevState) {}
 
 	render() {
 		const taxlist = this.state.taxonomies
 			? this.state.taxonomies.map((taxonomy, k) => (
-					<div className={taxonomy.taxinfo.name} key={k}>
-						<p>{taxonomy.taxinfo.name}</p>
+					<div className="col" key={k}>
+						<h3>{taxonomy.labels.name}</h3>
 
-						<ul>
-							{taxonomy.terms.length > 0 ? (
+						<select
+							className="custom-select"
+							onChange={(e) => this.handleChange(e)}
+							name={`select-${taxonomy.slug}`}
+						>
+							<option value="">Escoger ...</option>
+							{taxonomy.terms.length > 0 &&
 								taxonomy.terms.map((term, k) => (
-									<li
+									<option
+										value={[
+											term.term_id,
+											taxonomy.slug,
+											term.name,
+										]}
 										className="term"
-										onClick={() =>
-											this.props.onClickTerm(term)
-										}
 										key={k}
 									>
 										{term.name}
-									</li>
-								))
-							) : (
-								<li
-									className="term"
-									onClick={() =>
-										this.props.onClickTerm(
-											taxonomy.terms.name
-										)
-									}
-								>
-									{taxonomy.terms.name}
-								</li>
-							)}
-						</ul>
+									</option>
+								))}
+						</select>
 					</div>
 			  ))
 			: null;
 
-		return <div className="TaxBrowser">{taxlist}</div>;
+		return (
+			<div className="TaxBrowser">
+				<div className="row">{taxlist}</div>
+			</div>
+		);
 	}
 }
 

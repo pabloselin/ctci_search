@@ -27,17 +27,23 @@ function ctcisearch_endpoints() {
     $taxonomies = array('docarea', 'docpilar', 'doctype');
 
     $taxendpoints = [];
+    $taxlabels = [];
 
     foreach($taxonomies as $taxonomy) {
         $args = array(
             'taxonomy' => $taxonomy
         );
+
+        $taxobjlabels = get_taxonomy_labels( get_taxonomy($taxonomy ));
+
         $taxendpoints[] = array(
-            'labels'        => get_taxonomy_labels( get_taxonomy($taxonomy )),
+            'labels'        => $taxobjlabels,
             'endpoint'      => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
             'terms'         => get_terms($args),
             'name'          => $taxonomy 
         );
+
+        $taxlabels[$taxonomy] = $taxobjlabels;
     }
 
     $endpoints = array(
@@ -49,7 +55,8 @@ function ctcisearch_endpoints() {
       'taxonomies_endpoints'      => $taxendpoints,
       'sitename'                  => get_bloginfo('name'),
       'siteurl'                   => get_bloginfo('url'),
-      'years'                     => ctcisearch_minmaxyears()
+      'years'                     => ctcisearch_minmaxyears(),
+      'taxonomy_labels'           => $taxlabels
   );
 
     return $endpoints;
