@@ -188,8 +188,13 @@ class CtciSearch extends Component {
 				this.setState({
 					searchResults: posts,
 					resultsTitle:
-						this.state.taxLabels[taxName].name + ": " + termname + ' - ' + posts.length + ' resultado(s)',
-					layout: "mini"
+						this.state.taxLabels[taxName].name +
+						": " +
+						termname +
+						" - " +
+						posts.length +
+						" resultado(s)",
+					layout: "mini",
 				});
 			});
 		}
@@ -262,7 +267,7 @@ class CtciSearch extends Component {
 											/>
 										</div>
 									</div>
-									<div className="form-row">
+									<div className="form-row years-selects">
 										<div className="col">
 											<select
 												value={this.state.startYear}
@@ -306,21 +311,31 @@ class CtciSearch extends Component {
 									{this.state.startYear && (
 										<div className="form-row">
 											<div className="col">
-												Escoger hasta{" "}
-												<input
-													type="checkbox"
-													value={
-														this.state.allowYearEnd
-													}
-													onChange={() =>
-														this.setState({
-															allowYearEnd: !this
-																.state
-																.allowYearEnd,
-															endYear: "",
-														})
-													}
-												/>
+												<div className="form-group form-check">
+													<input
+														className="form-check-input"
+														name="allowYearEnd"
+														type="checkbox"
+														value={
+															this.state
+																.allowYearEnd
+														}
+														onChange={() =>
+															this.setState({
+																allowYearEnd: !this
+																	.state
+																	.allowYearEnd,
+																endYear: "",
+															})
+														}
+													/>
+													<label
+														for="allowYearEnd"
+														className="form-check-label"
+													>
+														Escoger hasta
+													</label>
+												</div>
 											</div>
 										</div>
 									)}
