@@ -24,7 +24,7 @@ add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
 function ctcisearch_endpoints() {
 
 
-    $taxonomies = array('docarea', 'docpilar', 'doctype');
+    $taxonomies = array('docarea', 'docpilar', 'doctype', 'doctema');
 
     $taxendpoints = [];
     $taxlabels = [];

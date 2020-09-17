@@ -188,7 +188,7 @@ class CtciSearch extends Component {
 				this.setState({
 					searchResults: posts,
 					resultsTitle:
-						this.state.taxLabels[taxName].name + ": " + termname,
+						this.state.taxLabels[taxName].name + ": " + termname + ' - ' + posts.length + ' resultado(s)',
 					layout: "mini"
 				});
 			});

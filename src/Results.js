@@ -45,9 +45,12 @@ class Results extends Component {
 					</div>
 				) : (
 					<>
-						<h3 className="resultsTitle">{this.props.title}</h3>
+						{this.props.title.length > 0 && (
+							<h3 className="resultsTitle">{this.props.title}</h3>
+						)}
 
-						{docslist(this.props.posts)}
+						{docslist.length > 0 &&
+							docslist(this.props.posts)}
 					</>
 				)}
 			</div>
