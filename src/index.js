@@ -19,6 +19,7 @@ class CtciSearch extends Component {
 			taxLabels: window.searchendpoints.taxonomy_labels,
 			sitename: window.searchendpoints.sitename,
 			years: Object.values(window.searchendpoints.years),
+			selectedTerms: window.searchendpoints.selected_terms,
 			restYears: [],
 			searchResults: [],
 			searchMessage: "",
@@ -33,7 +34,7 @@ class CtciSearch extends Component {
 			layout: "mini",
 		};
 
-		//this.clickTerm = this.clickTerm.bind(this);
+		this.searchTerm = this.searchTerm.bind(this);
 	}
 
 	componentDidMount() {
@@ -82,7 +83,6 @@ class CtciSearch extends Component {
 				this.state.startYear.length > 0)
 		) {
 			this.buildSearch();
-			this.setState({ isSearching: true, layout: "mini" });
 		}
 	}
 
@@ -91,6 +91,7 @@ class CtciSearch extends Component {
 		let searchUrl;
 		let searchString = encodeURI(this.state.searchContent);
 		console.log(searchString);
+		this.setState({ isSearching: true, layout: "mini" });
 
 		if (
 			this.state.startYear &&
@@ -131,8 +132,6 @@ class CtciSearch extends Component {
 			baseUrl = this.state.searchEndpoints.custom + "?s=" + searchString;
 		}
 
-		console.log(baseUrl);
-
 		apiFetch({ url: baseUrl }).then((items) => {
 			console.log(items);
 
@@ -162,10 +161,9 @@ class CtciSearch extends Component {
 	}
 
 	changeTerm(taxterm) {
-		//console.log(taxterm[0]);
+		
 		const info = taxterm.split(",");
-		console.log(info.length);
-
+		
 		if (info.length === 3) {
 			this.setState({
 				isTermSearch: true,
@@ -176,7 +174,7 @@ class CtciSearch extends Component {
 			let termname = info[2];
 
 			let taxName = taxonomy === "post_tag" ? "tags" : taxonomy;
-			console.log(taxName);
+
 			let searchUrl =
 				this.state.taxSearchBase +
 				"?taxonomy=" +
@@ -184,7 +182,9 @@ class CtciSearch extends Component {
 				"&term=" +
 				term;
 
+			console.log(searchUrl);
 			apiFetch({ url: searchUrl }).then((posts) => {
+				let numberItems = posts.length !== undefined ? posts.length : 0;
 				this.setState({
 					searchResults: posts,
 					resultsTitle:
@@ -192,12 +192,40 @@ class CtciSearch extends Component {
 						": " +
 						termname +
 						" - " +
-						posts.length +
+						numberItems +
 						" resultado(s)",
 					layout: "mini",
 				});
 			});
 		}
+	}
+
+	searchTerm(term) {
+		let searchUrl =
+			this.state.taxSearchBase +
+			"?taxonomy=" +
+			term.taxonomy +
+			"&term=" +
+			term.slug;
+
+		console.log(searchUrl);
+
+		apiFetch({
+			url: searchUrl,
+		}).then((posts) => {
+			let numberItems = posts.length !== undefined ? posts.length : 0;
+			this.setState({
+				searchResults: posts,
+				resultsTitle:
+					this.state.taxLabels[term.taxonomy].name +
+					": " +
+					term.name +
+					" - " +
+					numberItems +
+					" resultado(s)",
+				layout: "mini",
+			});
+		});
 	}
 
 	updateYearEnd(e) {
@@ -211,6 +239,10 @@ class CtciSearch extends Component {
 			startYear: e.target.value,
 			endYear: "",
 		});
+
+		if (this.state.layout === "expanded") {
+			this.buildSearch();
+		}
 	}
 
 	render() {
@@ -224,6 +256,64 @@ class CtciSearch extends Component {
 				{year}
 			</option>
 		));
+
+		const YearSearch = (
+			<Col>
+				<div className="years-selects form-row">
+					<div className="col">
+						<select
+							value={this.state.startYear}
+							className="custom-select"
+							name="yearStart"
+							id="yearStart"
+							onChange={(e) => this.updateYearStart(e)}
+						>
+							<option value={""}>{"desde Año"}</option>
+							{yearOptions}
+						</select>
+					</div>
+					{this.state.startYear && this.state.allowYearEnd && (
+						<div className="col">
+							<select
+								value={this.state.endYear}
+								className="custom-select"
+								name="yearEnd"
+								id="yearEnd"
+								onChange={(e) => this.updateYearEnd(e)}
+							>
+								<option value={""}>{"hasta Año"}</option>
+								{endYearOptions}
+							</select>
+						</div>
+					)}
+				</div>
+				{this.state.startYear && (
+					<div className="hastaInput">
+						<div className="col">
+							<div className="form-group form-check">
+								<input
+									className="form-check-input"
+									name="allowYearEnd"
+									id="allowYearEnd"
+									type="checkbox"
+									value={this.state.allowYearEnd}
+									onChange={() =>
+										this.setState({
+											allowYearEnd: !this.state
+												.allowYearEnd,
+											endYear: "",
+										})
+									}
+								/>
+								<label htmlFor="allowYearEnd" className="form-check-label">
+									Escoger hasta
+								</label>
+							</div>
+						</div>
+					</div>
+				)}
+			</Col>
+		);
 
 		return (
 			<>
@@ -252,7 +342,7 @@ class CtciSearch extends Component {
 
 								<Col className="searchZone">
 									<div className="form-row">
-										<div className="col">
+										<Col>
 											<input
 												type="text"
 												className="form-control"
@@ -265,99 +355,100 @@ class CtciSearch extends Component {
 												value={this.state.value}
 												placeholder="Buscar ..."
 											/>
-										</div>
-									</div>
-									<div className="form-row years-selects">
-										<div className="col">
-											<select
-												value={this.state.startYear}
-												className="custom-select"
-												name="yearStart"
-												id="yearStart"
-												onChange={(e) =>
-													this.updateYearStart(e)
-												}
+										</Col>
+										{this.state.layout === "mini" &&
+											YearSearch}
+										<Col>
+											<button
+												type="submit"
+												value="Buscar"
+												className="searchButton btn btn-large"
 											>
-												<option value={""}>
-													{"desde Año"}
-												</option>
-												{yearOptions}
-											</select>
-										</div>
-										{this.state.startYear &&
-											this.state.allowYearEnd && (
-												<div className="col">
-													<select
-														value={
-															this.state.endYear
-														}
-														className="custom-select"
-														name="yearEnd"
-														id="yearEnd"
-														onChange={(e) =>
-															this.updateYearEnd(
-																e
-															)
-														}
-													>
-														<option value={""}>
-															{"hasta Año"}
-														</option>
-														{endYearOptions}
-													</select>
-												</div>
-											)}
+												Buscar{" "}
+												<FontAwesomeIcon
+													icon={faSearch}
+												/>
+											</button>
+										</Col>
 									</div>
-									{this.state.startYear && (
-										<div className="form-row">
-											<div className="col">
-												<div className="form-group form-check">
-													<input
-														className="form-check-input"
-														name="allowYearEnd"
-														type="checkbox"
-														value={
-															this.state
-																.allowYearEnd
-														}
-														onChange={() =>
-															this.setState({
-																allowYearEnd: !this
-																	.state
-																	.allowYearEnd,
-																endYear: "",
-															})
-														}
-													/>
-													<label
-														for="allowYearEnd"
-														className="form-check-label"
-													>
-														Escoger hasta
-													</label>
-												</div>
-											</div>
-										</div>
-									)}
-									<button
-										type="submit"
-										value="Buscar"
-										className="searchButton btn btn-large"
-									>
-										Buscar{" "}
-										<FontAwesomeIcon icon={faSearch} />
-									</button>
 								</Col>
 							</Row>
 						</form>
 					</div>
 
-					<TaxBrowser
-						layout={this.state.layout}
-						onChangeTerm={(e) => this.changeTerm(e)}
-						taxonomies={this.state.taxEndpoints}
-						searchContent={this.state.searchContent}
-					/>
+					{this.state.layout === "mini" ? (
+						<TaxBrowser
+							layout={this.state.layout}
+							onChangeTerm={(e) => this.changeTerm(e)}
+							taxonomies={this.state.taxEndpoints}
+							searchContent={this.state.searchContent}
+						/>
+					) : (
+						<div className="TaxBrowser TaxBrowserHome">
+							<h2 className="taxbrowserTitle">
+								o explora por &hellip;
+							</h2>
+							<Row>
+								{this.state.selectedTerms.map((term, key) => (
+									<Col key={key}>
+										<h3>{term.name}</h3>
+										<div className="termdesc">
+											{term.description}
+										</div>
+										{term.children ? (
+											<div>
+												<select
+													className="custom-select"
+													onChange={(e) =>
+														this.changeTerm(
+															e.target.value
+														)
+													}
+													name={`select-${term.slug}`}
+												>
+													<option value="">
+														Buscar en {term.name}
+													</option>
+													{term.children.map(
+														(child) => (
+															<option
+																value={
+																	child.term_id +
+																	"," +
+																	child.taxonomy +
+																	"," +
+																	child.name
+																}
+															>
+																{child.name}
+															</option>
+														)
+													)}
+												</select>
+											</div>
+										) : (
+											<button
+												className="searchTerm btn btn-outline-dark btn-lg btn-light"
+												onClick={() =>
+													this.searchTerm(term)
+												}
+											>
+												Buscar ...
+											</button>
+										)}
+									</Col>
+								))}
+							</Row>
+							<Row>
+								<Col>
+									<h2 className="taxbrowserTitle">
+										o por año ...
+									</h2>
+								</Col>
+							</Row>
+							<Row>{YearSearch}</Row>
+						</div>
+					)}
 
 					<Results
 						isSearching={this.state.isSearching}

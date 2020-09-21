@@ -24,7 +24,14 @@ add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
 function ctcisearch_endpoints() {
 
 
-    $taxonomies = array('docarea', 'docpilar', 'doctype', 'doctema');
+    $taxonomies         = array('docarea', 'docpilar', 'doctype');
+    $extra_taxonomies   = array('doctema', 'post_tag');
+    $picked_terms       = array(['doctype', 'estrategias'], ['doctype', 'orientaciones-por-desafios'], ['doctype', 'documentos-tecnicos']);
+    $home_terms         = [];
+
+    foreach($picked_terms as $picked_term) {
+        $home_terms[] = ctcisearch_gettermswithchildren($picked_term[1], $picked_term[0]);
+    }
 
     $taxendpoints = [];
     $taxlabels = [];
@@ -56,7 +63,8 @@ function ctcisearch_endpoints() {
       'sitename'                  => get_bloginfo('name'),
       'siteurl'                   => get_bloginfo('url'),
       'years'                     => ctcisearch_minmaxyears(),
-      'taxonomy_labels'           => $taxlabels
+      'taxonomy_labels'           => $taxlabels,
+      'selected_terms'            => $home_terms
   );
 
     return $endpoints;
@@ -70,6 +78,54 @@ function ctcisearch_get_rest_termslist( $object, $field_name, $request ) {
     }
 
     return $taxlist;
+}
+
+function ctcisearch_buildtaxendpoints($taxonomies_list) {
+    $taxendpoints = [];
+
+    foreach($taxonomies_list as $taxonomy) {
+        $args = array(
+            'taxonomy' => $taxonomy
+        );
+
+        $taxobjlabels = get_taxonomy_labels( get_taxonomy($taxonomy ));
+
+        $taxendpoints[] = array(
+            'labels'        => $taxobjlabels,
+            'endpoint'      => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
+            'terms'         => get_terms($args),
+            'name'          => $taxonomy 
+        );
+    }
+
+    return $taxendpoints;
+}
+
+function ctcisearch_gettermswithchildren($term, $taxonomy) {
+    $termobj = get_term_by('slug', $term, $taxonomy, 'ARRAY_A');
+    $termchildren = get_term_children( $termobj['term_id'], $taxonomy );
+    
+    if($termchildren) {
+        $termdata = $termobj;
+        foreach($termchildren as $termchild) {
+            $termdata['children'][] = get_term($termchild, $taxonomy, 'ARRAY_A');
+        }
+    } else {
+        $termdata = $termobj;
+    }
+
+    return $termdata;
+}
+
+function ctcisearch_buildtaxlabels($taxonomies_list) {
+    $taxlabels = [];
+
+    foreach($taxonomies_list as $taxonomy) {
+        $taxobjlabels = get_taxonomy_labels( get_taxonomy($taxonomy) );
+        $taxlabels[$taxonomy] = $taxobjlabels;
+    }
+
+    return $taxlabels;
 }
 
 function ctcisearch_custom_endpoints() {

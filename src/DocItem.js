@@ -51,13 +51,13 @@ class DocItem extends Component {
 
 					<div className="docTerms">
 					{this.props.terms.docarea.length > 0 &&
-						this.props.terms.docarea.map((area) => (
-							<span>{area.name}</span>
+						this.props.terms.docarea.map((area, key) => (
+							<span key={key}>{area.name}</span>
 						))}
 
 						{this.props.terms.docpilar.length > 0 &&
-						this.props.terms.docpilar.map((area) => (
-							<span>{area.name}</span>
+						this.props.terms.docpilar.map((area, key) => (
+							<span key={key}>{area.name}</span>
 						))}
 					</div>
 				</div>
