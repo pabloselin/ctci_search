@@ -55,7 +55,7 @@ class TaxBrowser extends Component {
 							className="custom-select"
 							onChange={(e) => this.handleChange(e)}
 							name={`select-${taxonomy.slug}`}
-							value={this.state.curselection}
+							//value={this.state.curselection}
 						>
 							<option value="">Buscar en {taxonomy.labels.name}</option>
 							{taxonomy.terms.length > 0 &&

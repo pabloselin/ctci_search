@@ -64,10 +64,71 @@ function ctcisearch_endpoints() {
       'siteurl'                   => get_bloginfo('url'),
       'years'                     => ctcisearch_minmaxyears(),
       'taxonomy_labels'           => $taxlabels,
-      'selected_terms'            => $home_terms
+      'selected_terms'            => $home_terms,
+      'terms_home'                => ctcisearch_customterms_endpoint()
   );
 
     return $endpoints;
+}
+
+
+function ctcisearch_register_terms_menus() {
+    register_nav_menus(
+        array(
+            'terms_home' => 'Términos inicio'
+        )
+    );
+}
+
+add_action('after_setup_theme', 'ctcisearch_register_terms_menus');
+
+function ctcisearch_customterms_endpoint() {
+    $locations = get_nav_menu_locations();
+    $menu = get_term( $locations['terms_home'], 'nav_menu');
+    $menuobj = wp_get_nav_menu_object( $menu->name );
+    $menuitems = wp_get_nav_menu_items( $menu->name );
+    $terms = [];
+    //return $menuitems;
+
+    //var_dump($menuitems);
+    
+    foreach($menuitems as $menuitem) {
+        if($menuitem->menu_item_parent == '0') {
+            
+            $terminfo = get_term( $menuitem->object_id, $menuitem->object);
+
+            $terms[] = array(
+                        'menu_id'   => $menuitem->ID,
+                        'name'      => $menuitem->title,
+                        'term_id'   => $menuitem->object_id,
+                        'taxonomy'  => $menuitem->object,
+                        'slug'      => $terminfo->slug
+            );
+
+        }
+        
+    }
+
+    foreach($terms as $key=>$term) {
+
+        foreach($menuitems as $menuitem) {
+            if(intval($menuitem->menu_item_parent) == $term['menu_id']) {
+
+                $terminfo = get_term( $menuitem->object_id, $menuitem->object);
+
+                $terms[$key]['children'][] = array(
+                    'menu_id'   => $menuitem->ID,
+                    'name'      => $menuitem->title,
+                    'term_id'   => $menuitem->object_id,
+                    'taxonomy'  => $menuitem->object,
+                    'slug'      => $terminfo->slug
+                );
+            }
+        }
+
+    }
+
+    return $terms;
 }
 
 function ctcisearch_get_rest_termslist( $object, $field_name, $request ) {
@@ -108,7 +169,10 @@ function ctcisearch_gettermswithchildren($term, $taxonomy) {
     if($termchildren) {
         $termdata = $termobj;
         foreach($termchildren as $termchild) {
-            $termdata['children'][] = get_term($termchild, $taxonomy, 'ARRAY_A');
+            $subchild = get_term_children($termchild, $taxonomy);
+            if(!empty($subchild)) {
+                $termdata['children'][] = get_term($termchild, $taxonomy, 'ARRAY_A');
+            }
         }
     } else {
         $termdata = $termobj;
@@ -203,18 +267,20 @@ function ctcisearch_taxonomysearch( WP_REST_Request $request) {
 
 function ctcisearch_custom( WP_REST_Request $request) {
     //return $request['searchquery'];
-    if($request['startyear'] && $request['endyear'] && $request['s']) {
-        $items = ctcisearch_multiquery($request['s'], $request['startyear'], $request['endyear']);
-    } else if($request['startyear'] && $request['endyear']) {
-        $items = ctcisearch_yearquery( $request['startyear'], $request['endyear']);    
-    } else if($request['startyear'] && $request['s']) {
-        $items = ctcisearch_multiquery($request['s'], $request['startyear'], false);
-    } else if($request['startyear']) {
-        $items = ctcisearch_yearquery( $request['startyear'], false);
-    }
-    else {
-        $items = ctcisearch_searchquery($request['s']);
-    }
+    // if($request['start_year'] && $request['end_year'] && $request['content']) {
+    //     $items = ctcisearch_multiquery($request['content'], $request['start_year'], $request['end_year']);
+    // } else if($request['start_year'] && $request['end_year']) {
+    //     $items = ctcisearch_yearquery( $request['start_year'], $request['end_year']);    
+    // } else if($request['start_year'] && $request['content']) {
+    //     $items = ctcisearch_multiquery($request['content'], $request['start_year'], false);
+    // } else if($request['start_year']) {
+    //     $items = ctcisearch_yearquery( $request['start_year'], false);
+    // }
+    // else {
+    //     $items = ctcisearch_searchquery($request['content']);
+    // }
+
+    $items = ctcisearch_multiquery($request);
 
     if($items) {
         return ctcisearch_prepareitems($items);    
@@ -240,36 +306,53 @@ function ctcisearch_searchquery($search) {
     return $items;
 }
 
-function ctcisearch_multiquery($search, $start_year, $end_year) {
+function ctcisearch_multiquery($request) {
+
+    $params = ['content', 'start_year', 'end_year'];
+    $termparams = ['doctype', 'docarea', 'docauthor', 'doctema', 'docpilar', 'post_tag'];
+
 
     $args = array(
         'post_type'  => 'ctci_doc',
         'numberposts'=> -1,
-        's'          => $search,
+        's'          => $request['content'],
         'orderby'    => 'meta_value',
         'meta_key'   => '_ctci_doc_year',
         'order'      => 'ASC'
     );
 
-    if($end_year != false) {
+    
+    if($request['end_year']) {
         $args['meta_query'] = array(
             array(
                 'key'       => '_ctci_doc_year',
-                'value'     => array($start_year, $end_year),
+                'value'     => array($request['start_year'], $request['end_year']),
                 'compare'   => 'BETWEEN',
                 'type'      => 'NUMERIC'
             )
         );
-    } else {
+    } elseif($request['start_year']) {
         $args['meta_query'] = array(
             array(
                 'key'       => '_ctci_doc_year',
-                'value'     => $start_year,
+                'value'     => $request['start_year'],
                 'compare'   => '>=',
                 'type'      => 'NUMERIC'
             )
         );
     };
+
+    $args['tax_query'] = array('relation' => 'AND');
+
+    foreach($termparams as $termparam) {
+        if($request[$termparam]) {
+            $args['tax_query'][] = array(
+                                    'taxonomy' => $termparam, 
+                                    'field'    => 'term_id',
+                                    'terms'    => $request[$termparam]
+                                );
+        }
+    }
 
     $items = get_posts($args);
 

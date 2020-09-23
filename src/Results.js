@@ -5,12 +5,27 @@ import DocItem from "./DocItem.js";
 
 class Results extends Component {
 	constructor(props) {
-		super();
+		
+		super(props);
+
+		this.state = {
+			availableTerms: {
+				docarea: [],
+				docauthor: [],
+				docpilar: [],
+				doctema: [],
+				doctype: []
+			}
+		}
 	}
 
 	componentDidMount() {}
 
-	componentDidUpdate(prevProps) {}
+	componentDidUpdate(prevProps, prevState) {
+		if(this.props.posts !== prevProps.posts) {
+			console.log(this.props.posts);
+		}
+	}
 
 	render() {
 		const docslist = (docs) => {
