@@ -281,13 +281,43 @@ function ctcisearch_custom( WP_REST_Request $request) {
     // }
 
     $items = ctcisearch_multiquery($request);
-
+    $title = ctcisearch_buildtitle(count($items), $request);
     if($items) {
-        return ctcisearch_prepareitems($items);    
+        $response = array(
+            'title' => $title,
+            'items' => ctcisearch_prepareitems($items)
+        );
+        
     } else {
-        return false;
+        $response = array(
+            'title' => $title,
+            'items' => []
+        );
     }
     
+    return $response;    
+}
+
+function ctcisearch_buildtitle($noitems, $query) {
+    
+    $termparams = ['doctype', 'docarea', 'docauthor', 'doctema', 'docpilar', 'post_tag'];
+
+    $title = array(
+        'count' => $noitems, 
+        'searchcontent' => $query['content'], 
+        'start_year' => $query['start_year'], 
+        'end_year' => $query['end_year']
+    );
+
+    foreach($termparams as $termparam) {
+        if(isset($query[$termparam])) {
+            $term = get_term_field( 'name', $query[$termparam], $termparam );
+            $title['terms'][$termparam] = $term;
+        }
+    }
+
+
+    return $title;
 }
 
 function ctcisearch_searchquery($search) {

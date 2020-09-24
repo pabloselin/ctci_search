@@ -7,10 +7,15 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
+import SelectTerm from "./partials/SelectTerm.js";
+import SelectYear from "./partials/SelectYear.js";
 
 class CtciSearch extends Component {
 	constructor(props) {
 		super(props);
+
+		let initialState = this.emptySearch();
+
 		this.state = {
 			searchEndpoints: window.searchendpoints,
 			customSearch: window.searchendpoints.custom,
@@ -20,29 +25,61 @@ class CtciSearch extends Component {
 			sitename: window.searchendpoints.sitename,
 			years: Object.values(window.searchendpoints.years),
 			selectedTerms: window.searchendpoints.terms_home,
-			restYears: [],
+			layout: "mini",
+			...initialState,
+		};
+
+		//this.searchTerm = this.searchTerm.bind(this);
+		this.cleanSearch = this.cleanSearch.bind(this);
+		this.switchTerm = this.switchTerm.bind(this);
+		this.buttonTerm = this.buttonTerm.bind(this);
+	}
+
+	emptySearch() {
+		return {
+			resultsTitle: "",
 			searchResults: [],
 			searchMessage: "",
+			restYears: [],
 			isSearching: false,
 			isTermSearch: false,
 			allowYearEnd: false,
-			termSearch: "",
-			taxSearch: "",
-			resultsTitle: "",
-			layout: "mini",
-
-			s_content: null,
-			s_docarea: null,
-			s_doctype: null,
-			s_doctema: null,
-			s_docpilar: null,
-			s_docauthor: null,
-			s_post_tag: null,
-			s_startyear: null,
-			s_endyear: null,
+			s_content: "",
+			s_docarea: undefined,
+			s_doctype: undefined,
+			s_doctema: undefined,
+			s_docpilar: undefined,
+			s_docauthor: undefined,
+			s_post_tag: undefined,
+			s_startyear: undefined,
+			s_endyear: undefined,
 		};
+	}
 
-		this.searchTerm = this.searchTerm.bind(this);
+	cleanSearch() {
+		let emptySearch = this.emptySearch();
+
+		this.setState({ ...emptySearch });
+	}
+
+	hasSearch() {
+		let hasSearch = false;
+
+		if (
+			this.state.s_content ||
+			this.state.s_docarea ||
+			this.state.s_doctype ||
+			this.state.s_doctema ||
+			this.state.s_docpilar ||
+			this.state.s_docauthor ||
+			this.state.s_post_tag ||
+			this.state.s_startyear ||
+			this.state.s_endyear
+		) {
+			hasSearch = true;
+		}
+
+		return hasSearch;
 	}
 
 	componentDidMount() {
@@ -74,8 +111,8 @@ class CtciSearch extends Component {
 		}
 
 		if (
-			this.state.layout == "expanded" &&
-			this.state.s_startyear !== prevState.s_startyear ||
+			(this.state.layout == "expanded" &&
+				this.state.s_startyear !== prevState.s_startyear) ||
 			this.state.s_doctype !== prevState.s_doctype ||
 			this.state.s_docarea !== prevState.s_docarea ||
 			this.state.s_doctema !== prevState.s_doctema ||
@@ -95,77 +132,6 @@ class CtciSearch extends Component {
 		this.buildSearchUrl();
 	}
 
-	buildSearch() {
-		let baseUrl;
-		let searchUrl;
-		let searchString = encodeURI(this.state.s_content);
-		console.log(searchString);
-		this.setState({ isSearching: true, layout: "mini" });
-
-		if (
-			this.state.s_startyear &&
-			this.state.s_endyear &&
-			this.state.s_content.length > 0
-		) {
-			baseUrl =
-				this.state.searchEndpoints.custom +
-				"?s=" +
-				this.state.s_content +
-				"&startyear=" +
-				this.state.s_startyear +
-				"&endyear=" +
-				this.state.s_endyear;
-		} else if (this.state.s_startyear && this.state.s_endyear) {
-			baseUrl =
-				this.state.searchEndpoints.custom +
-				"?startyear=" +
-				this.state.s_startyear +
-				"&endyear=" +
-				this.state.s_endyear;
-		} else if (this.state.s_content.length > 0 && this.state.s_startyear) {
-			baseUrl =
-				this.state.searchEndpoints.custom +
-				"?s=" +
-				this.state.s_content +
-				"&startyear=" +
-				this.state.s_startyear;
-		} else if (this.state.s_startyear) {
-			baseUrl =
-				this.state.searchEndpoints.custom +
-				"?startyear=" +
-				this.state.s_startyear;
-		} else {
-			baseUrl = this.state.searchEndpoints.custom + "?s=" + searchString;
-		}
-
-		apiFetch({ url: baseUrl }).then((items) => {
-			console.log(items);
-
-			let title =
-				(items.length > 0 ? items.length : 0) +
-				" resultado(s) " +
-				(this.state.s_content.length > 0
-					? " para " + this.state.s_content
-					: "");
-			let yearstart =
-				this.state.s_startyear.length > 0
-					? " [desde " + this.state.s_startyear
-					: "";
-			let yearend =
-				this.state.s_endyear.length > 0
-					? " hasta " + this.state.s_endyear + "]"
-					: this.state.s_startyear.length > 0
-					? "]"
-					: "";
-
-			this.setState({
-				searchResults: items,
-				resultsTitle: title + yearstart + yearend,
-				isSearching: false,
-			});
-		});
-	}
-
 	buildSearchUrl() {
 		let baseurl = this.state.customSearch;
 
@@ -174,77 +140,74 @@ class CtciSearch extends Component {
 			layout: "mini",
 		});
 		let queryObj = {
-				content: this.state.s_content,
-				docarea: this.state.s_docarea,
-				doctype: this.state.s_doctype,
-				doctema: this.state.s_doctema,
-				docauthor: this.state.s_docauthor,
-				docpilar: this.state.s_docpilar,
-				post_tag: this.state.s_post_tag,
-				start_year: this.state.s_startyear,
-				end_year: this.state.s_endyear,
-			};
-		let query = queryString.stringify(
-			queryObj,
-			{
-				skipNull: true,
-			}
-		);
+			content: this.state.s_content,
+			docarea: this.state.s_docarea
+				? this.state.s_docarea.term_id
+				: undefined,
+			doctype: this.state.s_doctype
+				? this.state.s_doctype.term_id
+				: undefined,
+			doctema: this.state.s_doctema
+				? this.state.s_doctema.term_id
+				: undefined,
+			docauthor: this.state.s_docauthor
+				? this.state.s_docauthor.term_id
+				: undefined,
+			docpilar: this.state.s_docpilar
+				? this.state.s_docpilar.term_id
+				: undefined,
+			post_tag: this.state.s_post_tag
+				? this.state.s_post_tag.term_id
+				: undefined,
+			start_year: this.state.s_startyear,
+			end_year: this.state.s_endyear,
+		};
+		let query = queryString.stringify(queryObj, {
+			skipNull: true,
+		});
 
 		console.log(query);
 		apiFetch({ url: this.state.customSearch + "?" + query }).then(
-			(posts) => {
+			(response) => {
 				//console.log(posts);
 				this.setState({
-					searchResults: posts,
+					searchResults: response.items,
 					isSearching: false,
-					resultsTitle: this.buildResultsTitle(queryObj, posts.length),
+					title: response.title,
 				});
 			}
 		);
 	}
 
-	buildResultsTitle(query, number) {
-		console.log(query)
-		let title = "No se encontraron resultados";
-		if (this.state.searchResults !== false) {
-			title = number + " documentos";
+	switchTerm(term, taxonomy) {
 
-			if (query.content) {
-				title = `${title} para <strong>${query.content}<strong>`;
-			}
-		}
+		let terminfo = {
+			term_id: term.value,
+			term_name: term.label,
+		};
 
-		return title;
+		this.setState({
+			["s_" + taxonomy]: terminfo,
+		});
 	}
 
-	changeTerm(taxterm) {
-		const info = taxterm.split(",");
-
-		if (info.length === 3) {
-			this.setState({
-				isTermSearch: true,
-				isSearching: true,
-			});
-			let taxonomy = info[1];
-			let term = info[0];
-			let termname = info[2];
-
-			this.setState({ ["s_" + taxonomy]: term });
+	buttonTerm(menuitem) {
+		console.log(menuitem);
+		let term = {
+			value: menuitem.term_id,
+			label: menuitem.name
 		}
-	}
-
-	searchTerm(term) {
-		this.setState({ ["s_" + term.taxonomy]: term.term_id });
+		
+		this.switchTerm(term, menuitem.taxonomy);
 	}
 
 	updateYearEnd(e) {
 		//console.log(e.target.value);
-		this.setState({ s_endyear: e.target.value });
+		this.setState({ s_endyear: e.value });
 	}
 
 	updateYearStart(e) {
-		this.setState({ s_startyear: e.target.value, s_endyear: null });
+		this.setState({ s_startyear: e.value, s_endyear: null });
 	}
 
 	render() {
@@ -264,29 +227,23 @@ class CtciSearch extends Component {
 				<div className="years-selects form-row">
 					<Col>{"desde"}</Col>
 					<Col>
-						<select
-							value={this.state.s_startyear}
-							className="custom-select"
+						<SelectYear
+							change={(e) => this.updateYearStart(e)}
+							options={this.state.years}
 							name="yearStart"
 							id="yearStart"
-							onChange={(e) => this.updateYearStart(e)}
-						>
-							<option value={undefined}>{"escoger año"}</option>
-							{yearOptions}
-						</select>
+							value={this.state.s_startyear}
+						/>
 					</Col>
 					{this.state.s_startyear && this.state.allowYearEnd && (
 						<Col>
-							<select
-								value={this.state.s_endyear}
-								className="custom-select"
+							<SelectYear
+								change={(e) => this.updateYearEnd(e)}
 								name="yearEnd"
 								id="yearEnd"
-								onChange={(e) => this.updateYearEnd(e)}
-							>
-								<option value={undefined}>{"hasta Año"}</option>
-								{endYearOptions}
-							</select>
+								options={this.state.restYears}
+								value={this.state.s_endyear}
+							/>
 						</Col>
 					)}
 				</div>
@@ -358,7 +315,7 @@ class CtciSearch extends Component {
 												onSubmit={(e) =>
 													this.doSearch(e)
 												}
-												value={this.state.value}
+												value={this.state.s_content}
 												placeholder="Buscar ..."
 											/>
 										</Col>
@@ -376,6 +333,18 @@ class CtciSearch extends Component {
 												/>
 											</button>
 										</Col>
+										{this.hasSearch() && (
+											<Col>
+												<button
+													type="button"
+													value="Limpiar"
+													className="cleanButton btn btn-large"
+													onClick={this.cleanSearch}
+												>
+													Limpiar{" "}
+												</button>
+											</Col>
+										)}
 									</div>
 								</Col>
 							</Row>
@@ -385,9 +354,15 @@ class CtciSearch extends Component {
 					{this.state.layout === "mini" ? (
 						<TaxBrowser
 							layout={this.state.layout}
-							onChangeTerm={(e) => this.changeTerm(e)}
+							change={this.switchTerm}
 							taxonomies={this.state.taxEndpoints}
 							searchContent={this.state.s_content}
+							doctype={this.state.s_doctype}
+							docarea={this.state.s_docarea}
+							docauthor={this.state.s_docauthor}
+							doctema={this.state.s_doctema}
+							post_tag={this.state.s_post_tag}
+							docpilar={this.state.s_docpilar}
 						/>
 					) : (
 						<div className="TaxBrowser TaxBrowserHome">
@@ -403,40 +378,19 @@ class CtciSearch extends Component {
 										</div>
 										{term.children ? (
 											<div>
-												<select
-													className="custom-select"
-													onChange={(e) =>
-														this.changeTerm(
-															e.target.value
-														)
-													}
+												<SelectTerm
+													taxonomy={term.taxonomy}
+													change={this.switchTerm}
 													name={`select-${term.slug}`}
-												>
-													<option value="">
-														Buscar en {term.name}
-													</option>
-													{term.children.map(
-														(child) => (
-															<option
-																value={
-																	child.term_id +
-																	"," +
-																	child.taxonomy +
-																	"," +
-																	child.name
-																}
-															>
-																{child.name}
-															</option>
-														)
-													)}
-												</select>
+													options={term.children}
+													defaultLabel={`Buscar en ${term.name}`}
+												/>
 											</div>
 										) : (
 											<button
 												className="searchTerm btn btn-outline-dark btn-lg btn-light"
 												onClick={() =>
-													this.searchTerm(term)
+													this.buttonTerm(term)
 												}
 											>
 												Buscar ...
@@ -458,10 +412,10 @@ class CtciSearch extends Component {
 
 					<Results
 						isSearching={this.state.isSearching}
-						searchQuery={this.state.s_content}
-						title={this.state.resultsTitle}
 						message={this.state.searchMessage}
 						posts={this.state.searchResults}
+						title={this.state.title}
+						searchQuery={this.state.s_content}
 					/>
 				</Container>
 			</>

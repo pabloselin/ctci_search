@@ -5,7 +5,6 @@ import DocItem from "./DocItem.js";
 
 class Results extends Component {
 	constructor(props) {
-		
 		super(props);
 
 		this.state = {
@@ -14,18 +13,14 @@ class Results extends Component {
 				docauthor: [],
 				docpilar: [],
 				doctema: [],
-				doctype: []
-			}
-		}
+				doctype: [],
+			},
+		};
 	}
 
 	componentDidMount() {}
 
-	componentDidUpdate(prevProps, prevState) {
-		if(this.props.posts !== prevProps.posts) {
-			console.log(this.props.posts);
-		}
-	}
+	componentDidUpdate(prevProps, prevState) {}
 
 	render() {
 		const docslist = (docs) => {
@@ -60,12 +55,114 @@ class Results extends Component {
 					</div>
 				) : (
 					<>
-						{this.props.title.length > 0 && (
-							<h3 className="resultsTitle">{this.props.title}</h3>
+						{this.props.title && (
+							<>
+								<h3 className="resultsTitle">
+									{this.props.title.count} documentos
+								</h3>
+								<div className="resultsDetail">
+									{this.props.title.searchcontent && (
+										<p>
+											Con palabra clave:{" "}
+											<strong>
+												{this.props.title.searchcontent}
+											</strong>
+										</p>
+									)}
+									<p className="yearRange">
+										{this.props.title.start_year && (
+											<span>
+												desde{" "}
+												{this.props.title.start_year}
+											</span>
+										)}
+										{this.props.title.end_year && (
+											<span>
+												hasta{" "}
+												{this.props.title.end_year}
+											</span>
+										)}
+									</p>
+
+									{this.props.title.terms && (
+										<>
+											{" "}
+											{this.props.title.terms.doctype && (
+												<p>
+													Tipo de documento:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.doctype
+														}
+													</strong>
+												</p>
+											)}
+											{this.props.title.terms.docarea && (
+												<p>
+													Área:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.docarea
+														}
+													</strong>
+												</p>
+											)}
+											{this.props.title.terms
+												.docauthor && (
+												<p>
+													Autor:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.docauthor
+														}
+													</strong>
+												</p>
+											)}
+											{this.props.title.terms.doctema && (
+												<p>
+													Tema:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.doctema
+														}
+													</strong>
+												</p>
+											)}
+											{this.props.title.terms
+												.docpilar && (
+												<p>
+													Pilar Estratégico:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.docpilar
+														}
+													</strong>
+												</p>
+											)}
+											{this.props.title.terms
+												.post_tag && (
+												<p>
+													Etiqueta:{" "}
+													<strong>
+														{
+															this.props.title
+																.terms.post_tag
+														}
+													</strong>
+												</p>
+											)}
+										</>
+									)}
+								</div>
+							</>
 						)}
 
-						{docslist.length > 0 &&
-							docslist(this.props.posts)}
+						{docslist(this.props.posts)}
 					</>
 				)}
 			</div>

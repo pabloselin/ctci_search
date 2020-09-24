@@ -1,19 +1,17 @@
 import { Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { Row, Col, Container } from "react-bootstrap";
+import SelectTerm from "./partials/SelectTerm.js";
 
 class TaxBrowser extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			curtax: "",
-			taxonomies: null,
-			curselection: "",
-		};
+		this.state = {}
 	}
 
 	componentDidMount() {
 		let tmptax = [];
+
 		this.props.taxonomies.map((taxonomy) => {
 			if (taxonomy.terms.length === undefined) {
 				tmptax.push({
@@ -33,48 +31,24 @@ class TaxBrowser extends Component {
 		this.setState({ taxonomies: tmptax });
 	}
 
-	handleChange(e) {
-		let info = e.target.value.split(",");
-
-		if (info.length > 2) {
-			console.log("handlechange in taxbrowser");
-			this.setState({ curtax: info[1], curselection: e.target.value });
-			this.props.onChangeTerm(e.target.value);
-		}
+	
+	componentDidUpdate(prevProps, prevState) {
+		
 	}
-
-	componentDidUpdate(prevProps, prevState) {}
 
 	render() {
 		const taxlist = this.state.taxonomies
 			? this.state.taxonomies.map((taxonomy, k) => (
 					<Col key={k}>
 						<h3>{taxonomy.labels.name}</h3>
-
-						<select
-							className="custom-select"
-							onChange={(e) => this.handleChange(e)}
+						<SelectTerm
+							taxonomy={taxonomy.slug}
+							change={(e) => this.props.change(e, taxonomy.slug)}
 							name={`select-${taxonomy.slug}`}
-							//value={this.state.curselection}
-						>
-							<option value="">Buscar en {taxonomy.labels.name}</option>
-							{taxonomy.terms.length > 0 &&
-								taxonomy.terms.map((term, k) => (
-									<option
-										value={
-											term.term_id +
-											"," +
-											taxonomy.slug +
-											"," +
-											term.name
-										}
-										className="term"
-										key={k}
-									>
-										{term.name}
-									</option>
-								))}
-						</select>
+							options={taxonomy.terms}
+							defaultLabel={`Buscar en ${taxonomy.labels.name}`}
+							value={this.props[taxonomy.slug]}
+						/>
 					</Col>
 			  ))
 			: null;
