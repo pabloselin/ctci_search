@@ -3,12 +3,13 @@ import apiFetch from "@wordpress/api-fetch";
 import queryString from "query-string";
 import { Row, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
 import SelectTerm from "./partials/SelectTerm.js";
 import SelectYear from "./partials/SelectYear.js";
+import ChangeYear from "./partials/ChangeYear.js";
 
 class CtciSearch extends Component {
 	constructor(props) {
@@ -26,6 +27,7 @@ class CtciSearch extends Component {
 			years: Object.values(window.searchendpoints.years),
 			selectedTerms: window.searchendpoints.terms_home,
 			layout: "mini",
+			searchUrl: window.location.search,
 			...initialState,
 		};
 
@@ -87,6 +89,18 @@ class CtciSearch extends Component {
 		this.setState({
 			layout: this.props.layout,
 		});
+
+		let tmpstate = {};
+
+		if (this.state.searchUrl) {
+			let parsedQuery = queryString.parse(this.state.searchUrl);
+
+			if (parsedQuery.content) {
+				tmpstate["s_content"] = parsedQuery.content;
+			}
+		}
+
+		this.setState(tmpstate);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -117,7 +131,9 @@ class CtciSearch extends Component {
 			this.state.s_docarea !== prevState.s_docarea ||
 			this.state.s_doctema !== prevState.s_doctema ||
 			this.state.s_docpilar !== prevState.s_docpilar ||
-			this.state.s_docauthor !== prevState.s_docauthor
+			this.state.s_docauthor !== prevState.s_docauthor ||
+			(this.state.s_content !== prevState.s_content &&
+				this.state.s_content.length > 5)
 		) {
 			this.buildSearchUrl();
 		}
@@ -180,7 +196,6 @@ class CtciSearch extends Component {
 	}
 
 	switchTerm(term, taxonomy) {
-
 		let terminfo = {
 			term_id: term.value,
 			term_name: term.label,
@@ -195,9 +210,9 @@ class CtciSearch extends Component {
 		console.log(menuitem);
 		let term = {
 			value: menuitem.term_id,
-			label: menuitem.name
-		}
-		
+			label: menuitem.name,
+		};
+
 		this.switchTerm(term, menuitem.taxonomy);
 	}
 
@@ -211,130 +226,71 @@ class CtciSearch extends Component {
 	}
 
 	render() {
-		const yearOptions = this.state.years.map((year, idx) => (
-			<option key={idx} value={year}>
-				{year}
-			</option>
-		));
-		const endYearOptions = this.state.restYears.map((year, idx) => (
-			<option key={idx} value={year}>
-				{year}
-			</option>
-		));
+		
 
-		const YearSearch = (
-			<Col>
-				<div className="years-selects form-row">
-					<Col>{"desde"}</Col>
-					<Col>
-						<SelectYear
-							change={(e) => this.updateYearStart(e)}
-							options={this.state.years}
-							name="yearStart"
-							id="yearStart"
-							value={this.state.s_startyear}
-						/>
-					</Col>
-					{this.state.s_startyear && this.state.allowYearEnd && (
-						<Col>
-							<SelectYear
-								change={(e) => this.updateYearEnd(e)}
-								name="yearEnd"
-								id="yearEnd"
-								options={this.state.restYears}
-								value={this.state.s_endyear}
-							/>
-						</Col>
-					)}
-				</div>
-				{this.state.s_startyear && (
-					<div className="hastaInput">
-						<Col>
-							<div className="form-group form-check">
-								<input
-									className="form-check-input"
-									name="allowYearEnd"
-									id="allowYearEnd"
-									type="checkbox"
-									value={this.state.allowYearEnd}
-									onChange={() =>
-										this.setState({
-											allowYearEnd: !this.state
-												.allowYearEnd,
-											s_endyear: undefined,
-										})
-									}
-								/>
-								<label
-									htmlFor="allowYearEnd"
-									className="form-check-label"
-								>
-									Escoger hasta
-								</label>
-							</div>
-						</Col>
-					</div>
-				)}
-			</Col>
+		const AltChangeYear = (
+			<ChangeYear
+				changeYearStart={(e) => this.updateYearStart(e)}
+				changeYearEnd={(e)=> this.updateYearEnd(e)}
+				years={this.state.years}
+				restYears={this.state.restYears}
+				startyear={this.state.s_startyear}
+				endyear={this.state.s_endyear}
+				allowYearEnd={this.state.allowYearEnd}
+				setAllowEnd={() =>
+					this.setState({
+						allowYearEnd: !this.state.allowYearEnd,
+						s_endyear: undefined,
+					})
+				}
+			/>
 		);
 
+		
+
 		return (
-			<>
-				<Container className={this.state.layout}>
-					<div className="SearchZone">
-						<form
-							className="SearchField form"
-							onSubmit={(e) => this.doSearch(e)}
-						>
-							{this.state.layout === "expanded" && (
-								<Row>
-									<Col>
-										<h1 className="searchMainTitle">
-											{this.state.sitename}
-										</h1>
-									</Col>
-								</Row>
+			<Container className={this.state.layout}>
+				<div className="SearchZone">
+					<form
+						className="SearchField form"
+						onSubmit={(e) => this.doSearch(e)}
+					>
+						{this.state.layout === "expanded" && (
+							<Row>
+								<Col>
+									<h1 className="searchMainTitle">
+										{this.state.sitename}
+									</h1>
+								</Col>
+							</Row>
+						)}
+
+						<Row>
+							{this.state.layout === "mini" && (
+								<Col md="2" className="searchInfo">
+									{this.state.sitename}
+								</Col>
 							)}
 
-							<Row>
-								{this.state.layout === "mini" && (
-									<Col md="2" className="searchInfo">
-										{this.state.sitename}
+							<Col className="searchZone">
+								<div className="form-row">
+									<Col>
+										<input
+											type="text"
+											className="form-control"
+											onChange={(e) =>
+												this.updateSearch(e)
+											}
+											onSubmit={(e) => this.doSearch(e)}
+											value={this.state.s_content}
+											placeholder="Buscar ..."
+										/>
 									</Col>
-								)}
+									
 
-								<Col className="searchZone">
-									<div className="form-row">
-										<Col>
-											<input
-												type="text"
-												className="form-control"
-												onChange={(e) =>
-													this.updateSearch(e)
-												}
-												onSubmit={(e) =>
-													this.doSearch(e)
-												}
-												value={this.state.s_content}
-												placeholder="Buscar ..."
-											/>
-										</Col>
-										{this.state.layout === "mini" &&
-											YearSearch}
-										<Col>
-											<button
-												type="submit"
-												value="Buscar"
-												className="searchButton btn btn-large"
-											>
-												Buscar{" "}
-												<FontAwesomeIcon
-													icon={faSearch}
-												/>
-											</button>
-										</Col>
-										{this.hasSearch() && (
-											<Col>
+									{this.hasSearch() &&
+										this.state.layout == "mini" && (
+											<Col className="colclean">
 												<button
 													type="button"
 													value="Limpiar"
@@ -342,83 +298,96 @@ class CtciSearch extends Component {
 													onClick={this.cleanSearch}
 												>
 													Limpiar{" "}
+													<FontAwesomeIcon
+														icon={faTimes}
+													/>
 												</button>
 											</Col>
 										)}
-									</div>
-								</Col>
-							</Row>
-						</form>
-					</div>
-
-					{this.state.layout === "mini" ? (
-						<TaxBrowser
-							layout={this.state.layout}
-							change={this.switchTerm}
-							taxonomies={this.state.taxEndpoints}
-							searchContent={this.state.s_content}
-							doctype={this.state.s_doctype}
-							docarea={this.state.s_docarea}
-							docauthor={this.state.s_docauthor}
-							doctema={this.state.s_doctema}
-							post_tag={this.state.s_post_tag}
-							docpilar={this.state.s_docpilar}
-						/>
-					) : (
-						<div className="TaxBrowser TaxBrowserHome">
-							<h2 className="taxbrowserTitle">
-								o explora por &hellip;
-							</h2>
-							<Row>
-								{this.state.selectedTerms.map((term, key) => (
-									<Col key={key}>
-										<h3>{term.name}</h3>
-										<div className="termdesc">
-											{term.description}
-										</div>
-										{term.children ? (
-											<div>
-												<SelectTerm
-													taxonomy={term.taxonomy}
-													change={this.switchTerm}
-													name={`select-${term.slug}`}
-													options={term.children}
-													defaultLabel={`Buscar en ${term.name}`}
-												/>
-											</div>
-										) : (
-											<button
-												className="searchTerm btn btn-outline-dark btn-lg btn-light"
-												onClick={() =>
-													this.buttonTerm(term)
-												}
-											>
-												Buscar ...
-											</button>
-										)}
+									<Col className="colsearchbutton">
+										<button
+											type="submit"
+											value="Buscar"
+											className="searchButton btn btn-large"
+										>
+											Buscar{" "}
+											<FontAwesomeIcon icon={faSearch} />
+										</button>
 									</Col>
-								))}
-							</Row>
-							<Row>
-								<Col>
-									<h2 className="taxbrowserTitle">
-										o por año ...
-									</h2>
-								</Col>
-							</Row>
-							<Row>{YearSearch}</Row>
-						</div>
-					)}
+								</div>
+							</Col>
+						</Row>
+					</form>
+				</div>
 
-					<Results
-						isSearching={this.state.isSearching}
-						message={this.state.searchMessage}
-						posts={this.state.searchResults}
-						title={this.state.title}
-						searchQuery={this.state.s_content}
+				{this.state.layout === "mini" ? (
+					<TaxBrowser
+						layout={this.state.layout}
+						change={this.switchTerm}
+						taxonomies={this.state.taxEndpoints}
+						searchContent={this.state.s_content}
+						doctype={this.state.s_doctype}
+						docarea={this.state.s_docarea}
+						docauthor={this.state.s_docauthor}
+						doctema={this.state.s_doctema}
+						post_tag={this.state.s_post_tag}
+						docpilar={this.state.s_docpilar}
+						changeYear={AltChangeYear}
 					/>
-				</Container>
-			</>
+				) : (
+					<div className="TaxBrowser TaxBrowserHome">
+						<h2 className="taxbrowserTitle">
+							o explora por &hellip;
+						</h2>
+						<Row>
+							{this.state.selectedTerms.map((term, key) => (
+								<Col key={key}>
+									<h3>{term.name}</h3>
+									<div className="termdesc">
+										{term.description}
+									</div>
+									{term.children ? (
+										<div>
+											<SelectTerm
+												taxonomy={term.taxonomy}
+												change={this.switchTerm}
+												name={`select-${term.slug}`}
+												options={term.children}
+												defaultLabel={`Buscar en ${term.name}`}
+											/>
+										</div>
+									) : (
+										<button
+											className="searchTerm btn btn-outline-dark btn-lg btn-light"
+											onClick={() =>
+												this.buttonTerm(term)
+											}
+										>
+											Buscar ...
+										</button>
+									)}
+								</Col>
+							))}
+						</Row>
+						<Row>
+							<Col>
+								<h2 className="taxbrowserTitle">
+									o por año ...
+								</h2>
+							</Col>
+						</Row>
+						<Row>{AltChangeYear}</Row>
+					</div>
+				)}
+
+				<Results
+					isSearching={this.state.isSearching}
+					message={this.state.searchMessage}
+					posts={this.state.searchResults}
+					title={this.state.title}
+					searchQuery={this.state.s_content}
+				/>
+			</Container>
 		);
 	}
 }

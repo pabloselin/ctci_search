@@ -28,11 +28,13 @@ class SelectTerm extends Component {
 	render() {
 		return (
 			this.state.options && (
+				<>
+				<label>{this.props.taxname}</label>
 				<Select
 					value={{
 						label: this.props.value
 							? this.props.value.term_name
-							: 'Escoge un filtro...',
+							: this.props.defaultLabel,
 						value: this.props.value
 							? this.props.value.term_id
 							: undefined,
@@ -40,6 +42,7 @@ class SelectTerm extends Component {
 					onChange={(e) => this.props.change(e, this.props.taxonomy)}
 					options={this.state.options}
 				/>
+				</>
 			)
 		);
 	}

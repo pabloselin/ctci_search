@@ -24,14 +24,8 @@ add_action( 'wp_enqueue_scripts', 'ctcisearch_enqueue_scripts');
 function ctcisearch_endpoints() {
 
 
-    $taxonomies         = array('docarea', 'docpilar', 'doctype');
+    $taxonomies         = array('docarea', 'docpilar', 'doctype', 'doctema');
     $extra_taxonomies   = array('doctema', 'post_tag');
-    $picked_terms       = array(['doctype', 'estrategias'], ['doctype', 'orientaciones-por-desafios'], ['doctype', 'documentos-tecnicos']);
-    $home_terms         = [];
-
-    foreach($picked_terms as $picked_term) {
-        $home_terms[] = ctcisearch_gettermswithchildren($picked_term[1], $picked_term[0]);
-    }
 
     $taxendpoints = [];
     $taxlabels = [];
@@ -64,7 +58,6 @@ function ctcisearch_endpoints() {
       'siteurl'                   => get_bloginfo('url'),
       'years'                     => ctcisearch_minmaxyears(),
       'taxonomy_labels'           => $taxlabels,
-      'selected_terms'            => $home_terms,
       'terms_home'                => ctcisearch_customterms_endpoint()
   );
 
@@ -160,25 +153,6 @@ function ctcisearch_buildtaxendpoints($taxonomies_list) {
     }
 
     return $taxendpoints;
-}
-
-function ctcisearch_gettermswithchildren($term, $taxonomy) {
-    $termobj = get_term_by('slug', $term, $taxonomy, 'ARRAY_A');
-    $termchildren = get_term_children( $termobj['term_id'], $taxonomy );
-    
-    if($termchildren) {
-        $termdata = $termobj;
-        foreach($termchildren as $termchild) {
-            $subchild = get_term_children($termchild, $taxonomy);
-            if(!empty($subchild)) {
-                $termdata['children'][] = get_term($termchild, $taxonomy, 'ARRAY_A');
-            }
-        }
-    } else {
-        $termdata = $termobj;
-    }
-
-    return $termdata;
 }
 
 function ctcisearch_buildtaxlabels($taxonomies_list) {

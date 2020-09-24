@@ -26,6 +26,8 @@ class SelectYear extends Component {
 	render() {
 		return (
 			this.state.options && (
+				<>
+				<label>{this.props.label}</label>
 				<Select
 					onChange={(e) => this.props.change(e)}
 					options={this.state.options}
@@ -34,6 +36,7 @@ class SelectYear extends Component {
 						label: this.props.value ? this.props.value : "Año",
 					}}
 				/>
+				</>
 			)
 		);
 	}

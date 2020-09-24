@@ -6,7 +6,7 @@ import SelectTerm from "./partials/SelectTerm.js";
 class TaxBrowser extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {}
+		this.state = {};
 	}
 
 	componentDidMount() {
@@ -31,10 +31,7 @@ class TaxBrowser extends Component {
 		this.setState({ taxonomies: tmptax });
 	}
 
-	
-	componentDidUpdate(prevProps, prevState) {
-		
-	}
+	componentDidUpdate(prevProps, prevState) {}
 
 	render() {
 		const taxlist = this.state.taxonomies
@@ -43,6 +40,7 @@ class TaxBrowser extends Component {
 						<h3>{taxonomy.labels.name}</h3>
 						<SelectTerm
 							taxonomy={taxonomy.slug}
+							taxname={taxonomy.labels.name}
 							change={(e) => this.props.change(e, taxonomy.slug)}
 							name={`select-${taxonomy.slug}`}
 							options={taxonomy.terms}
@@ -58,7 +56,10 @@ class TaxBrowser extends Component {
 				{this.props.layout === "expanded" && (
 					<h2 className="taxbrowserTitle">o explora por &hellip;</h2>
 				)}
-				<Row>{taxlist}</Row>
+				<Row>
+					{this.props.changeYear}
+					{taxlist}
+				</Row>
 			</div>
 		);
 	}
