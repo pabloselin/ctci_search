@@ -409,6 +409,10 @@ class CtciSearch extends Component {
 }
 
 const searchBox = document.getElementById("ctci_search");
-const layout = searchBox.getAttribute("data-layout");
 
-render(<CtciSearch layout={layout} />, searchBox);
+if(searchBox) {
+
+	const layout = searchBox.getAttribute("data-layout");
+	render(<CtciSearch layout={layout} />, searchBox);	
+}
+
