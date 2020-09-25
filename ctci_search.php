@@ -29,23 +29,33 @@ function ctcisearch_endpoints() {
 
     $taxendpoints = [];
     $taxlabels = [];
+    $termlabels = [];
 
     foreach($taxonomies as $taxonomy) {
         $args = array(
             'taxonomy' => $taxonomy
         );
 
+        $terms = get_terms($args);
+
         $taxobjlabels = get_taxonomy_labels( get_taxonomy($taxonomy ));
 
         $taxendpoints[] = array(
             'labels'        => $taxobjlabels,
             'endpoint'      => get_bloginfo('url') . '/wp-json/wp/v2/' . $taxonomy,
-            'terms'         => get_terms($args),
+            'terms'         => $terms,
             'name'          => $taxonomy 
         );
 
         $taxlabels[$taxonomy] = $taxobjlabels;
+
+        foreach($terms as $term) {
+            $termlabels[$taxonomy][$term->term_id] = $term->name;
+        }
+
     }
+
+
 
     $endpoints = array(
       'default'                   => get_bloginfo('url') . '/wp-json/wp/v2/ctci_doc?_embed&search=',
@@ -58,6 +68,7 @@ function ctcisearch_endpoints() {
       'siteurl'                   => get_bloginfo('url'),
       'years'                     => ctcisearch_minmaxyears(),
       'taxonomy_labels'           => $taxlabels,
+      'term_labels'               => $termlabels,
       'terms_home'                => ctcisearch_customterms_endpoint()
   );
 

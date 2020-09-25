@@ -1,6 +1,7 @@
 import { render, Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import queryString from "query-string";
+import { BrowserRouter as Router } from "react-router";
 import { Row, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -23,6 +24,7 @@ class CtciSearch extends Component {
 			taxEndpoints: window.searchendpoints.taxonomies_endpoints,
 			taxSearchBase: window.searchendpoints.taxonomy_custom,
 			taxLabels: window.searchendpoints.taxonomy_labels,
+			termLabels: window.searchendpoints.term_labels,
 			sitename: window.searchendpoints.sitename,
 			years: Object.values(window.searchendpoints.years),
 			selectedTerms: window.searchendpoints.terms_home,
@@ -90,17 +92,7 @@ class CtciSearch extends Component {
 			layout: this.props.layout,
 		});
 
-		let tmpstate = {};
-
-		if (this.state.searchUrl) {
-			let parsedQuery = queryString.parse(this.state.searchUrl);
-
-			if (parsedQuery.content) {
-				tmpstate["s_content"] = parsedQuery.content;
-			}
-		}
-
-		this.setState(tmpstate);
+		this.processLocation();
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -153,8 +145,24 @@ class CtciSearch extends Component {
 			isSearching: true,
 			layout: "mini",
 		});
+
+		let query = this.buildQueryString();
+
+		apiFetch({ url: this.state.customSearch + "?" + query }).then(
+			(response) => {
+				//console.log(posts);
+				this.setState({
+					searchResults: response.items,
+					isSearching: false,
+					title: response.title,
+				});
+			}
+		);
+	}
+
+	buildQueryString() {
 		let queryObj = {
-			content: this.state.s_content,
+			content: this.state.s_content ? this.state.s_content : undefined,
 			docarea: this.state.s_docarea
 				? this.state.s_docarea.term_id
 				: undefined,
@@ -179,18 +187,43 @@ class CtciSearch extends Component {
 		let query = queryString.stringify(queryObj, {
 			skipNull: true,
 		});
+		window.history.pushState({ query: query }, "", "#/" + query);
+		return query;
+	}
 
-		console.log(query);
-		apiFetch({ url: this.state.customSearch + "?" + query }).then(
-			(response) => {
-				//console.log(posts);
-				this.setState({
-					searchResults: response.items,
-					isSearching: false,
-					title: response.title,
-				});
+	processLocation() {
+		let locationHash = window.location.hash.substring(2);
+		let parsed = queryString.parse(locationHash);
+
+		if (parsed) {
+			this.setState({
+				s_content: parsed.content ? parsed.content : undefined,
+				s_docarea: this.returnTermData('docarea', parsed.docarea),
+				s_doctype: this.returnTermData('doctype', parsed.doctype),
+				s_doctema: this.returnTermData('doctema', parsed.doctema),
+				s_docauthor: this.returnTermData('docauthor', parsed.docauthor),
+				s_docpilar: this.returnTermData('docpilar', parsed.docpilar),
+				s_post_tag: this.returnTermData('post_tag', parsed.post_tag),
+				s_startyear: parsed.start_year ? parsed.start_year : undefined,
+				s_endyear: parsed.end_year ? parsed.end_year : undefined,
+			});
+		}
+
+		console.log(parsed);
+	}
+
+	returnTermData(taxonomy, termid) {
+		//devuelve el nombre del termino tambien sacado de algun lugar magico
+		let termData = undefined;
+		if(termid) {
+
+			termData = {
+				term_id: parseInt(termid),
+				term_name: this.state.termLabels[taxonomy][termid]
 			}
-		);
+		}
+
+		return termData;
 	}
 
 	switchTerm(term, taxonomy) {
@@ -410,9 +443,7 @@ class CtciSearch extends Component {
 
 const searchBox = document.getElementById("ctci_search");
 
-if(searchBox) {
-
+if (searchBox) {
 	const layout = searchBox.getAttribute("data-layout");
-	render(<CtciSearch layout={layout} />, searchBox);	
+	render(<CtciSearch layout={layout} />, searchBox);
 }
-
