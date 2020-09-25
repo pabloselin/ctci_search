@@ -56,12 +56,6 @@ class Results extends Component {
 					</div>
 				) : (
 					<>
-						{this.props.title && (
-							<>
-								<ResultsTitle title={this.props.title} />
-							</>
-						)}
-
 						{docslist(this.props.posts)}
 					</>
 				)}

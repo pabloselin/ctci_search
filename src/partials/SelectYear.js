@@ -1,6 +1,8 @@
 import { render, Component } from "@wordpress/element";
 import Select from "react-select";
 
+import {selectTheme, selectStyle} from "./selectTheme.js";
+
 class SelectYear extends Component {
 	constructor(props) {
 		super(props);
@@ -35,6 +37,8 @@ class SelectYear extends Component {
 						label: this.props.value,
 						label: this.props.value ? this.props.value : "Año",
 					}}
+					theme={(theme)=>selectTheme(theme)}
+					styles={selectStyle}
 				/>
 				</>
 			)

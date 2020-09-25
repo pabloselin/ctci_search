@@ -125,15 +125,13 @@ class CtciSearch extends Component {
 		}
 
 		if (
-			(this.state.layout == "expanded" &&
-				this.state.s_startyear !== prevState.s_startyear) ||
+			this.state.s_startyear !== prevState.s_startyear ||
+			this.state.s_endyear !== prevState.s_endyear ||
 			this.state.s_doctype !== prevState.s_doctype ||
 			this.state.s_docarea !== prevState.s_docarea ||
 			this.state.s_doctema !== prevState.s_doctema ||
 			this.state.s_docpilar !== prevState.s_docpilar ||
-			this.state.s_docauthor !== prevState.s_docauthor ||
-			(this.state.s_content !== prevState.s_content &&
-				this.state.s_content.length > 5)
+			this.state.s_docauthor !== prevState.s_docauthor
 		) {
 			this.buildSearchUrl();
 		}
@@ -225,13 +223,15 @@ class CtciSearch extends Component {
 		this.setState({ s_startyear: e.value, s_endyear: null });
 	}
 
-	render() {
-		
+	toggleLayout() {
+		this.setState({ layout: "mini" });
+	}
 
+	render() {
 		const AltChangeYear = (
 			<ChangeYear
 				changeYearStart={(e) => this.updateYearStart(e)}
-				changeYearEnd={(e)=> this.updateYearEnd(e)}
+				changeYearEnd={(e) => this.updateYearEnd(e)}
 				years={this.state.years}
 				restYears={this.state.restYears}
 				startyear={this.state.s_startyear}
@@ -245,8 +245,6 @@ class CtciSearch extends Component {
 				}
 			/>
 		);
-
-		
 
 		return (
 			<Container className={this.state.layout}>
@@ -273,8 +271,8 @@ class CtciSearch extends Component {
 							)}
 
 							<Col className="searchZone">
-								<div className="form-row">
-									<Col>
+								<Row className="justify-content-md-center form-row">
+									<Col md={5} className="mainSearchInput">
 										<input
 											type="text"
 											className="form-control"
@@ -285,8 +283,17 @@ class CtciSearch extends Component {
 											value={this.state.s_content}
 											placeholder="Buscar ..."
 										/>
+										{this.state.layout === "expanded" && (
+											<span
+												className="toggleLayout"
+												onClick={() =>
+													this.toggleLayout()
+												}
+											>
+												Búsqueda avanzada
+											</span>
+										)}
 									</Col>
-									
 
 									{this.hasSearch() &&
 										this.state.layout == "mini" && (
@@ -314,7 +321,7 @@ class CtciSearch extends Component {
 											<FontAwesomeIcon icon={faSearch} />
 										</button>
 									</Col>
-								</div>
+								</Row>
 							</Col>
 						</Row>
 					</form>
@@ -333,60 +340,69 @@ class CtciSearch extends Component {
 						post_tag={this.state.s_post_tag}
 						docpilar={this.state.s_docpilar}
 						changeYear={AltChangeYear}
+						title={this.state.title}
 					/>
 				) : (
-					<div className="TaxBrowser TaxBrowserHome">
-						<h2 className="taxbrowserTitle">
-							o explora por &hellip;
-						</h2>
-						<Row>
-							{this.state.selectedTerms.map((term, key) => (
-								<Col key={key}>
-									<h3>{term.name}</h3>
-									<div className="termdesc">
-										{term.description}
-									</div>
-									{term.children ? (
-										<div>
-											<SelectTerm
-												taxonomy={term.taxonomy}
-												change={this.switchTerm}
-												name={`select-${term.slug}`}
-												options={term.children}
-												defaultLabel={`Buscar en ${term.name}`}
-											/>
+					<div className="TaxBrowserHome">
+						<div className="filterHomeSection">
+							<h2 className="taxbrowserTitle">
+								o explora por &hellip;
+							</h2>
+							<Row>
+								{this.state.selectedTerms.map((term, key) => (
+									<Col key={key}>
+										<h3 className="taxTitle">
+											{term.name}
+										</h3>
+										<div className="termdesc">
+											{term.description}
 										</div>
-									) : (
-										<button
-											className="searchTerm btn btn-outline-dark btn-lg btn-light"
-											onClick={() =>
-												this.buttonTerm(term)
-											}
-										>
-											Buscar ...
-										</button>
-									)}
+										{term.children ? (
+											<div>
+												<SelectTerm
+													taxonomy={term.taxonomy}
+													change={this.switchTerm}
+													name={`select-${term.slug}`}
+													options={term.children}
+													defaultLabel={`Buscar en ${term.name}`}
+												/>
+											</div>
+										) : (
+											<button
+												className="searchTerm btn btn-outline-dark btn-lg btn-light"
+												onClick={() =>
+													this.buttonTerm(term)
+												}
+											>
+												Buscar ...
+											</button>
+										)}
+									</Col>
+								))}
+							</Row>
+						</div>
+						<div className="filterHomeSection">
+							<Row>
+								<Col>
+									<h2 className="taxbrowserTitle">
+										o por año ...
+									</h2>
 								</Col>
-							))}
-						</Row>
-						<Row>
-							<Col>
-								<h2 className="taxbrowserTitle">
-									o por año ...
-								</h2>
-							</Col>
-						</Row>
-						<Row>{AltChangeYear}</Row>
+							</Row>
+							<Row className="justify-content-md-center">
+								<Col md={3}>{AltChangeYear}</Col>
+							</Row>
+						</div>
 					</div>
 				)}
-
-				<Results
-					isSearching={this.state.isSearching}
-					message={this.state.searchMessage}
-					posts={this.state.searchResults}
-					title={this.state.title}
-					searchQuery={this.state.s_content}
-				/>
+				{this.state.layout === "mini" && (
+					<Results
+						isSearching={this.state.isSearching}
+						message={this.state.searchMessage}
+						posts={this.state.searchResults}
+						searchQuery={this.state.s_content}
+					/>
+				)}
 			</Container>
 		);
 	}

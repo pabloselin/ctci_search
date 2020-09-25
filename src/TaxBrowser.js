@@ -2,6 +2,7 @@ import { Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { Row, Col, Container } from "react-bootstrap";
 import SelectTerm from "./partials/SelectTerm.js";
+import ResultsTitle from "./partials/ResultsTitle.js";
 
 class TaxBrowser extends Component {
 	constructor(props) {
@@ -37,7 +38,6 @@ class TaxBrowser extends Component {
 		const taxlist = this.state.taxonomies
 			? this.state.taxonomies.map((taxonomy, k) => (
 					<Col key={k}>
-						<h3>{taxonomy.labels.name}</h3>
 						<SelectTerm
 							taxonomy={taxonomy.slug}
 							taxname={taxonomy.labels.name}
@@ -53,10 +53,13 @@ class TaxBrowser extends Component {
 
 		return (
 			<div className="TaxBrowser">
-				{this.props.layout === "expanded" && (
-					<h2 className="taxbrowserTitle">o explora por &hellip;</h2>
-				)}
-				<Row>
+				<Row >
+					{this.props.title && (
+						<Col md={2} className="titleZone">
+							<ResultsTitle title={this.props.title} />
+						</Col>
+					)}
+
 					{this.props.changeYear}
 					{taxlist}
 				</Row>

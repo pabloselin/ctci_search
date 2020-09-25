@@ -9,7 +9,7 @@ class ResultsTitle extends Component {
 	render() {
 		return (
 			<>
-				<h3 className="resultsTitle">
+				<h3 className="numberResults">
 					{this.props.title.count} documento(s)
 				</h3>
 				<div className="resultsDetail">
