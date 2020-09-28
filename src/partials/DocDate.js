@@ -18,18 +18,7 @@ const monthEquiv = {
 const DocDate = (props) => {
 	return (
 		<div className="DocMeta">
-			{props.date.day ? (
-				<span className="date">
-					{props.date.day}{" "}
-					{monthEquiv[props.date.month]}{" "}
-					{props.date.year}
-				</span>
-			) : (
-				<span className="date">
-					{monthEquiv[props.date.month]}{" "}
-					{props.date.year}
-				</span>
-			)}
+			<span className="date">{props.date.year}</span>
 		</div>
 	);
 };

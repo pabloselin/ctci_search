@@ -375,6 +375,7 @@ class CtciSearch extends Component {
 						docpilar={this.state.s_docpilar}
 						changeYear={AltChangeYear}
 						title={this.state.title}
+						isSearching={this.state.isSearching}
 					/>
 				) : (
 					<div className="TaxBrowserHome">
@@ -384,7 +385,7 @@ class CtciSearch extends Component {
 							</h2>
 							<Row>
 								{this.state.selectedTerms.map((term, key) => (
-									<Col key={key}>
+									<Col className="taxColHome" xs={12} md={4} key={key}>
 										<h3 className="taxTitle">
 											{term.name}
 										</h3>

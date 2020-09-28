@@ -1,17 +1,37 @@
 import { Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { Row, Col, Container } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+
+import {
+	BrowserView,
+	MobileView,
+	isMobile,
+	isBrowser,
+} from "react-device-detect";
+
 import SelectTerm from "./partials/SelectTerm.js";
 import ResultsTitle from "./partials/ResultsTitle.js";
 
 class TaxBrowser extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {
+			showFilters: true,
+		};
+
+		this.showFilters = this.showFilters.bind(this);
 	}
 
 	componentDidMount() {
 		let tmptax = [];
+
+		if (isMobile) {
+			this.setState({
+				showFilters: false,
+			});
+		}
 
 		this.props.taxonomies.map((taxonomy) => {
 			if (taxonomy.terms.length === undefined) {
@@ -34,10 +54,16 @@ class TaxBrowser extends Component {
 
 	componentDidUpdate(prevProps, prevState) {}
 
+	showFilters() {
+		this.setState({
+			showFilters: !this.state.showFilters,
+		});
+	}
+
 	render() {
 		const taxlist = this.state.taxonomies
 			? this.state.taxonomies.map((taxonomy, k) => (
-					<Col key={k}>
+					<Col xs={12} md={2} key={k}>
 						<SelectTerm
 							taxonomy={taxonomy.slug}
 							taxname={taxonomy.labels.name}
@@ -53,16 +79,42 @@ class TaxBrowser extends Component {
 
 		return (
 			<div className="TaxBrowser">
-				<Row >
+				<MobileView>
 					{this.props.title && (
-						<Col md={2} className="titleZone">
-							<ResultsTitle title={this.props.title} />
-						</Col>
+						<ResultsTitle
+							isSearching={this.props.isSearching}
+							title={this.props.title}
+						/>
 					)}
 
-					{this.props.changeYear}
-					{taxlist}
-				</Row>
+					<p className="toggleFilters" onClick={this.showFilters}>
+						{this.state.showFilters
+							? "Ocultar filtros "
+							: "Mostrar filtros "}
+						<FontAwesomeIcon
+							icon={
+								this.state.showFilters
+									? faChevronUp
+									: faChevronDown
+							}
+						/>
+					</p>
+				</MobileView>
+				{this.state.showFilters && (
+					<Row>
+						{this.props.title && isBrowser && (
+							<Col xs={12} md={2} className="titleZone">
+								<ResultsTitle
+									isSearching={this.props.isSearching}
+									title={this.props.title}
+								/>
+							</Col>
+						)}
+
+						{this.props.changeYear}
+						{taxlist}
+					</Row>
+				)}
 			</div>
 		);
 	}
