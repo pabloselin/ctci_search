@@ -1,7 +1,6 @@
 import { render, Component } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import queryString from "query-string";
-import { BrowserRouter as Router } from "react-router";
 import { Row, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -30,6 +29,7 @@ class CtciSearch extends Component {
 			selectedTerms: window.searchendpoints.terms_home,
 			layout: "mini",
 			searchUrl: window.location.search,
+			isPrevSearch: false,
 			...initialState,
 		};
 
@@ -41,12 +41,10 @@ class CtciSearch extends Component {
 
 	emptySearch() {
 		return {
-			resultsTitle: "",
 			searchResults: [],
 			searchMessage: "",
 			restYears: [],
 			isSearching: false,
-			isTermSearch: false,
 			allowYearEnd: false,
 			s_content: "",
 			s_docarea: undefined,
@@ -117,6 +115,7 @@ class CtciSearch extends Component {
 		}
 
 		if (
+			this.state.s_content !== prevState.s_content && this.state.isPrevSearch === true ||
 			this.state.s_startyear !== prevState.s_startyear ||
 			this.state.s_endyear !== prevState.s_endyear ||
 			this.state.s_doctype !== prevState.s_doctype ||
@@ -155,6 +154,7 @@ class CtciSearch extends Component {
 					searchResults: response.items,
 					isSearching: false,
 					title: response.title,
+					isPrevSearch: false
 				});
 			}
 		);
@@ -162,7 +162,7 @@ class CtciSearch extends Component {
 
 	buildQueryString() {
 		let queryObj = {
-			content: this.state.s_content ? this.state.s_content : undefined,
+			content: this.state.s_content ? this.state.s_content : "",
 			docarea: this.state.s_docarea
 				? this.state.s_docarea.term_id
 				: undefined,
@@ -197,7 +197,7 @@ class CtciSearch extends Component {
 
 		if (parsed) {
 			this.setState({
-				s_content: parsed.content ? parsed.content : undefined,
+				s_content: parsed.content ? parsed.content : "",
 				s_docarea: this.returnTermData('docarea', parsed.docarea),
 				s_doctype: this.returnTermData('doctype', parsed.doctype),
 				s_doctema: this.returnTermData('doctema', parsed.doctema),
@@ -206,6 +206,7 @@ class CtciSearch extends Component {
 				s_post_tag: this.returnTermData('post_tag', parsed.post_tag),
 				s_startyear: parsed.start_year ? parsed.start_year : undefined,
 				s_endyear: parsed.end_year ? parsed.end_year : undefined,
+				isPrevSearch: true
 			});
 		}
 

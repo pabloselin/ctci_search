@@ -106,7 +106,8 @@ function ctcisearch_customterms_endpoint() {
                         'name'      => $menuitem->title,
                         'term_id'   => $menuitem->object_id,
                         'taxonomy'  => $menuitem->object,
-                        'slug'      => $terminfo->slug
+                        'slug'      => $terminfo->slug,
+                        'description'  => $terminfo->description
             );
 
         }
@@ -251,20 +252,6 @@ function ctcisearch_taxonomysearch( WP_REST_Request $request) {
 
 
 function ctcisearch_custom( WP_REST_Request $request) {
-    //return $request['searchquery'];
-    // if($request['start_year'] && $request['end_year'] && $request['content']) {
-    //     $items = ctcisearch_multiquery($request['content'], $request['start_year'], $request['end_year']);
-    // } else if($request['start_year'] && $request['end_year']) {
-    //     $items = ctcisearch_yearquery( $request['start_year'], $request['end_year']);    
-    // } else if($request['start_year'] && $request['content']) {
-    //     $items = ctcisearch_multiquery($request['content'], $request['start_year'], false);
-    // } else if($request['start_year']) {
-    //     $items = ctcisearch_yearquery( $request['start_year'], false);
-    // }
-    // else {
-    //     $items = ctcisearch_searchquery($request['content']);
-    // }
-
     $items = ctcisearch_multiquery($request);
     $title = ctcisearch_buildtitle(count($items), $request);
     if($items) {
