@@ -10,7 +10,7 @@ const ChangeYear = (props) => {
 					options={props.years}
 					name="yearStart"
 					id="yearStart"
-					label="Desde"
+					label={props.labelStart}
 					value={props.startyear}
 				/>
 				{props.startyear && (

@@ -13,7 +13,7 @@ class SelectYear extends Component {
 	}
 
 	componentDidMount() {
-		let options = [{ value: undefined, label: "Año" }];
+		let options = [{ value: undefined, label: "Todos" }];
 
 		if (this.props.options) {
 			this.props.options.map((option) =>
@@ -35,7 +35,7 @@ class SelectYear extends Component {
 						options={this.state.options}
 						value={{
 							label: this.props.value,
-							label: this.props.value ? this.props.value : "Año",
+							label: this.props.value ? this.props.value : "Escoge año",
 						}}
 						theme={(theme) => selectTheme(theme)}
 						styles={selectStyle}

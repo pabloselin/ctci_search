@@ -16,7 +16,7 @@ class SelectTerm extends Component {
 		let emptyLabel = this.props.taxname
 			? "Buscar en " + this.props.taxname
 			: "Buscar ...";
-		let options = [{ value: undefined, label: "Buscar en " + emptyLabel }];
+		let options = [{ value: undefined, label: emptyLabel }];
 
 		if (this.props.options) {
 			this.props.options.map((option) => {

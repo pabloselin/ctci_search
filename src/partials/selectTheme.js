@@ -20,6 +20,16 @@ const selectStyle = {
 		...provided,
 		display: 'none',
 	}),
+	indicatorsContainer: (provided, state) => ({
+		...provided,
+		"> div": {
+			padding: 4
+		}
+	}),
+	valueContainer: (provided, state) => ({
+		...provided,
+		padding: '4px 8px'
+	}),
 	control: (provided, state) => ({
 		...provided,
 		boxShadow: 0,

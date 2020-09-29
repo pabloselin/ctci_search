@@ -129,6 +129,11 @@ class CtciSearch extends Component {
 		) {
 			this.buildSearchUrl();
 		}
+
+		if(this.state.layout !== prevState.layout) {
+			document.body.classList.remove('ctcisearch-' + prevState.layout);
+			document.body.classList.add('ctcisearch-' + this.state.layout);
+		}
 	}
 
 	updateSearch(e) {
@@ -259,8 +264,9 @@ class CtciSearch extends Component {
 		this.setState({ s_startyear: e.value, s_endyear: null });
 	}
 
-	toggleLayout() {
+	toggleLayout(e) {
 		this.setState({ layout: "mini" });
+		this.doSearch(e);
 	}
 
 	toggleExtraTaxonomies() {
@@ -277,6 +283,7 @@ class CtciSearch extends Component {
 				startyear={this.state.s_startyear}
 				endyear={this.state.s_endyear}
 				allowYearEnd={this.state.allowYearEnd}
+				labelStart={"Año"}
 				setAllowEnd={() =>
 					this.setState({
 						allowYearEnd: !this.state.allowYearEnd,
@@ -304,11 +311,7 @@ class CtciSearch extends Component {
 						)}
 
 						<Row>
-							{this.state.layout === "mini" && (
-								<Col md="2" className="searchInfo">
-									{this.state.sitename}
-								</Col>
-							)}
+							
 
 							<Col className="searchZone">
 								<Row className="justify-content-md-center form-row">
@@ -326,8 +329,8 @@ class CtciSearch extends Component {
 										{this.state.layout === "expanded" && (
 											<span
 												className="toggleLayout"
-												onClick={() =>
-													this.toggleLayout()
+												onClick={(e) =>
+													this.toggleLayout(e)
 												}
 											>
 												Búsqueda avanzada
@@ -463,7 +466,14 @@ class CtciSearch extends Component {
 									className="btn btn-light"
 									onClick={() => this.toggleExtraTaxonomies()}
 								>
-									<FontAwesomeIcon icon={this.state.showOtherTaxonomies ? faTimes : faPlus} /> Otras categorías
+									<FontAwesomeIcon
+										icon={
+											this.state.showOtherTaxonomies
+												? faTimes
+												: faPlus
+										}
+									/>{" "}
+									Otras categorías
 								</button>
 							</div>
 						</div>
