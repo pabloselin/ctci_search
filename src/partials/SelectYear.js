@@ -1,7 +1,7 @@
 import { render, Component } from "@wordpress/element";
 import Select from "react-select";
 
-import {selectTheme, selectStyle} from "./selectTheme.js";
+import { selectTheme, selectStyle } from "./selectTheme.js";
 
 class SelectYear extends Component {
 	constructor(props) {
@@ -13,7 +13,7 @@ class SelectYear extends Component {
 	}
 
 	componentDidMount() {
-		let options = [];
+		let options = [{ value: undefined, label: "Año" }];
 
 		if (this.props.options) {
 			this.props.options.map((option) =>
@@ -29,17 +29,17 @@ class SelectYear extends Component {
 		return (
 			this.state.options && (
 				<>
-				<label>{this.props.label}</label>
-				<Select
-					onChange={(e) => this.props.change(e)}
-					options={this.state.options}
-					value={{
-						label: this.props.value,
-						label: this.props.value ? this.props.value : "Año",
-					}}
-					theme={(theme)=>selectTheme(theme)}
-					styles={selectStyle}
-				/>
+					<label>{this.props.label}</label>
+					<Select
+						onChange={(e) => this.props.change(e)}
+						options={this.state.options}
+						value={{
+							label: this.props.value,
+							label: this.props.value ? this.props.value : "Año",
+						}}
+						theme={(theme) => selectTheme(theme)}
+						styles={selectStyle}
+					/>
 				</>
 			)
 		);

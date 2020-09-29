@@ -338,7 +338,7 @@ function ctcisearch_multiquery($request) {
             array(
                 'key'       => '_ctci_doc_year',
                 'value'     => $request['start_year'],
-                'compare'   => '>=',
+                'compare'   => '==',
                 'type'      => 'NUMERIC'
             )
         );

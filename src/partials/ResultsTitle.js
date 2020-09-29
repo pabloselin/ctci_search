@@ -23,7 +23,7 @@ class ResultsTitle extends Component {
 								<p className="yearRange">
 									{this.props.title.start_year && (
 										<span>
-											desde{" "}
+											publicados el {" "}
 											<strong>
 												{this.props.title.start_year}
 											</strong>

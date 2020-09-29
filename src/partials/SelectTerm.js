@@ -1,7 +1,7 @@
 import { render, Component } from "@wordpress/element";
 import Select from "react-select";
 
-import {selectTheme, selectStyle} from "./selectTheme.js";
+import { selectTheme, selectStyle } from "./selectTheme.js";
 
 class SelectTerm extends Component {
 	constructor(props) {
@@ -13,7 +13,10 @@ class SelectTerm extends Component {
 	}
 
 	componentDidMount() {
-		let options = [];
+		let emptyLabel = this.props.taxname
+			? "Buscar en " + this.props.taxname
+			: "Buscar ...";
+		let options = [{ value: undefined, label: "Buscar en " + emptyLabel }];
 
 		if (this.props.options) {
 			this.props.options.map((option) => {

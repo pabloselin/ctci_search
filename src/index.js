@@ -404,7 +404,7 @@ class CtciSearch extends Component {
 											</div>
 										) : (
 											<button
-												className="searchTerm btn btn-outline-dark btn-lg btn-light"
+												className="searchTerm btn btn-lg btn-light"
 												onClick={() =>
 													this.buttonTerm(term)
 												}
