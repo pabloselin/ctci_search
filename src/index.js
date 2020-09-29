@@ -3,7 +3,7 @@ import apiFetch from "@wordpress/api-fetch";
 import queryString from "query-string";
 import { Row, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faTimes, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 import Results from "./Results.js";
 import TaxBrowser from "./TaxBrowser.js";
@@ -29,6 +29,7 @@ class CtciSearch extends Component {
 			selectedTerms: window.searchendpoints.terms_home,
 			layout: "mini",
 			searchUrl: window.location.search,
+			showOtherTaxonomies: false,
 			isPrevSearch: false,
 			...initialState,
 		};
@@ -37,6 +38,7 @@ class CtciSearch extends Component {
 		this.cleanSearch = this.cleanSearch.bind(this);
 		this.switchTerm = this.switchTerm.bind(this);
 		this.buttonTerm = this.buttonTerm.bind(this);
+		this.toggleExtraTaxonomies = this.toggleExtraTaxonomies.bind(this);
 	}
 
 	emptySearch() {
@@ -115,7 +117,8 @@ class CtciSearch extends Component {
 		}
 
 		if (
-			this.state.s_content !== prevState.s_content && this.state.isPrevSearch === true ||
+			(this.state.s_content !== prevState.s_content &&
+				this.state.isPrevSearch === true) ||
 			this.state.s_startyear !== prevState.s_startyear ||
 			this.state.s_endyear !== prevState.s_endyear ||
 			this.state.s_doctype !== prevState.s_doctype ||
@@ -154,7 +157,7 @@ class CtciSearch extends Component {
 					searchResults: response.items,
 					isSearching: false,
 					title: response.title,
-					isPrevSearch: false
+					isPrevSearch: false,
 				});
 			}
 		);
@@ -198,15 +201,15 @@ class CtciSearch extends Component {
 		if (parsed) {
 			this.setState({
 				s_content: parsed.content ? parsed.content : "",
-				s_docarea: this.returnTermData('docarea', parsed.docarea),
-				s_doctype: this.returnTermData('doctype', parsed.doctype),
-				s_doctema: this.returnTermData('doctema', parsed.doctema),
-				s_docauthor: this.returnTermData('docauthor', parsed.docauthor),
-				s_docpilar: this.returnTermData('docpilar', parsed.docpilar),
-				s_post_tag: this.returnTermData('post_tag', parsed.post_tag),
+				s_docarea: this.returnTermData("docarea", parsed.docarea),
+				s_doctype: this.returnTermData("doctype", parsed.doctype),
+				s_doctema: this.returnTermData("doctema", parsed.doctema),
+				s_docauthor: this.returnTermData("docauthor", parsed.docauthor),
+				s_docpilar: this.returnTermData("docpilar", parsed.docpilar),
+				s_post_tag: this.returnTermData("post_tag", parsed.post_tag),
 				s_startyear: parsed.start_year ? parsed.start_year : undefined,
 				s_endyear: parsed.end_year ? parsed.end_year : undefined,
-				isPrevSearch: true
+				isPrevSearch: true,
 			});
 		}
 
@@ -216,12 +219,11 @@ class CtciSearch extends Component {
 	returnTermData(taxonomy, termid) {
 		//devuelve el nombre del termino tambien sacado de algun lugar magico
 		let termData = undefined;
-		if(termid) {
-
+		if (termid) {
 			termData = {
 				term_id: parseInt(termid),
-				term_name: this.state.termLabels[taxonomy][termid]
-			}
+				term_name: this.state.termLabels[taxonomy][termid],
+			};
 		}
 
 		return termData;
@@ -259,6 +261,10 @@ class CtciSearch extends Component {
 
 	toggleLayout() {
 		this.setState({ layout: "mini" });
+	}
+
+	toggleExtraTaxonomies() {
+		this.setState({ showOtherTaxonomies: !this.state.showOtherTaxonomies });
 	}
 
 	render() {
@@ -383,38 +389,83 @@ class CtciSearch extends Component {
 							<h2 className="taxbrowserTitle">
 								o explora por &hellip;
 							</h2>
-							<Row>
-								{this.state.selectedTerms.map((term, key) => (
-									<Col className="taxColHome" xs={12} md={4} key={key}>
-										<h3 className="taxTitle">
-											{term.name}
-										</h3>
-										<div className="termdesc">
-											{term.description}
-										</div>
-										{term.children ? (
-											<div>
-												<SelectTerm
-													taxonomy={term.taxonomy}
-													change={this.switchTerm}
-													name={`select-${term.slug}`}
-													options={term.children}
-													defaultLabel={`Buscar en ${term.name}`}
-												/>
-											</div>
-										) : (
-											<button
-												className="searchTerm btn btn-lg btn-light"
-												onClick={() =>
-													this.buttonTerm(term)
-												}
+							{this.state.showOtherTaxonomies ? (
+								<TaxBrowser
+									layout={this.state.layout}
+									change={this.switchTerm}
+									taxonomies={this.state.taxEndpoints}
+									searchContent={this.state.s_content}
+									doctype={this.state.s_doctype}
+									docarea={this.state.s_docarea}
+									docauthor={this.state.s_docauthor}
+									doctema={this.state.s_doctema}
+									post_tag={this.state.s_post_tag}
+									docpilar={this.state.s_docpilar}
+									changeYear={AltChangeYear}
+									title={this.state.title}
+									isSearching={this.state.isSearching}
+									hideYears={true}
+									hideDocType={true}
+									inHome={true}
+								/>
+							) : (
+								<Row>
+									{this.state.selectedTerms.map(
+										(term, key) => (
+											<Col
+												className="taxColHome"
+												xs={12}
+												md={4}
+												key={key}
 											>
-												Buscar ...
-											</button>
-										)}
-									</Col>
-								))}
-							</Row>
+												<h3 className="taxTitle">
+													{term.name}
+												</h3>
+												<div className="termdesc">
+													{term.description}
+												</div>
+												{term.children ? (
+													<div>
+														<SelectTerm
+															taxonomy={
+																term.taxonomy
+															}
+															change={
+																this.switchTerm
+															}
+															name={`select-${term.slug}`}
+															options={
+																term.children
+															}
+															defaultLabel={`Buscar en ${term.name}`}
+														/>
+													</div>
+												) : (
+													<button
+														className="searchTerm btn btn-lg btn-light"
+														onClick={() =>
+															this.buttonTerm(
+																term
+															)
+														}
+													>
+														Buscar ...
+													</button>
+												)}
+											</Col>
+										)
+									)}
+								</Row>
+							)}
+
+							<div className="extraBrowser">
+								<button
+									className="btn btn-light"
+									onClick={() => this.toggleExtraTaxonomies()}
+								>
+									<FontAwesomeIcon icon={this.state.showOtherTaxonomies ? faTimes : faPlus} /> Otras categorías
+								</button>
+							</div>
 						</div>
 						<div className="filterHomeSection">
 							<Row>

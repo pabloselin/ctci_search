@@ -34,18 +34,22 @@ class TaxBrowser extends Component {
 		}
 
 		this.props.taxonomies.map((taxonomy) => {
-			if (taxonomy.terms.length === undefined) {
-				tmptax.push({
-					labels: taxonomy.labels,
-					terms: Object.values(taxonomy.terms),
-					slug: taxonomy.name,
-				});
+			if (this.props.hideDocType && taxonomy.name === "doctype") {
+				//no se que poner aqui
 			} else {
-				tmptax.push({
-					labels: taxonomy.labels,
-					terms: taxonomy.terms,
-					slug: taxonomy.name,
-				});
+				if (taxonomy.terms.length === undefined) {
+					tmptax.push({
+						labels: taxonomy.labels,
+						terms: Object.values(taxonomy.terms),
+						slug: taxonomy.name,
+					});
+				} else {
+					tmptax.push({
+						labels: taxonomy.labels,
+						terms: taxonomy.terms,
+						slug: taxonomy.name,
+					});
+				}
 			}
 		});
 
@@ -63,7 +67,7 @@ class TaxBrowser extends Component {
 	render() {
 		const taxlist = this.state.taxonomies
 			? this.state.taxonomies.map((taxonomy, k) => (
-					<Col xs={12} md={2} key={k}>
+					<Col xs={12} md={this.props.inHome ? 4 : 2} key={k}>
 						<SelectTerm
 							taxonomy={taxonomy.slug}
 							taxname={taxonomy.labels.name}
@@ -111,7 +115,7 @@ class TaxBrowser extends Component {
 							</Col>
 						)}
 
-						{this.props.changeYear}
+						{!this.props.hideYears && this.props.changeYear}
 						{taxlist}
 					</Row>
 				)}
