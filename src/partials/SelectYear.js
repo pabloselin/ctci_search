@@ -29,13 +29,24 @@ class SelectYear extends Component {
 		return (
 			this.state.options && (
 				<>
-					<label>{this.props.label}</label>
+					<label
+						className={this.props.value !== undefined ? "wv" : "nv"}
+					>
+						{this.props.label}
+					</label>
 					<Select
+						className={
+							this.props.value !== undefined
+								? "withValue"
+								: "withoutValue"
+						}
 						onChange={(e) => this.props.change(e)}
 						options={this.state.options}
 						value={{
-							label: this.props.value,
-							label: this.props.value ? this.props.value : "Escoge año",
+							value: this.props.value,
+							label: this.props.value
+								? this.props.value
+								: "Escoge año",
 						}}
 						theme={(theme) => selectTheme(theme)}
 						styles={selectStyle}

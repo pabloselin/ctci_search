@@ -34,8 +34,13 @@ class SelectTerm extends Component {
 		return (
 			this.state.options && (
 				<>
-					<label>{this.props.taxname}</label>
+					<label className={this.props.value !== undefined ? 'wv' : 'nv'}>{this.props.taxname}</label>
 					<Select
+						className={
+							this.props.value !== undefined
+								? "withValue"
+								: "withoutValue"
+						}
 						value={{
 							label: this.props.value
 								? this.props.value.term_name
